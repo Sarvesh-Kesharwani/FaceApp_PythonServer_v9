@@ -234,8 +234,10 @@ def RecieveNamePhoto():
     # checking name delimeter
     temp = str(clientsocket.recv(5).decode())
     print("Temp is: "+temp)
-    if (temp != "?NAME") and (SelectOp(temp[4]) != "APPEND"):
-        return None, None
+    if (temp != "?NAME") and (str(temp[4]) != "1"):
+        	return None, None
+    else:
+      print("switching back to reciving name & photo option.")
 
     # reads first 2 bytes for name's length in bytes
     name_length = clientsocket.recv(2).decode()
