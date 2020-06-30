@@ -24,7 +24,7 @@ def retractActuator():
 def stopActuator():
 	print("Stop")
 	GPIO.output(RELAIS_1_GPIO, GPIO.LOW)
-	GPIO.output(RELAIS_1_GPIO, GPIO.LOW)
+	GPIO.output(RELAIS_2_GPIO, GPIO.LOW)
 
 try:
 	while True:
