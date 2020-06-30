@@ -1,3 +1,5 @@
 cd /home/pi/python_server
 
-sudo git pull origin master
+spawn jarsigner git pull origin master
+expect "Enter passphrase for key '/home/pi/.ssh/id_rsa':"
+send "raspberry"
