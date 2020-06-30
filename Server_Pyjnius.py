@@ -285,7 +285,7 @@ def RecieveNamePhoto():
 
     if not os.path.exists(imageDir):
         print("Dir not found creating dir...")
-        os.mkdirs(imageDir)
+        os.mkdir(imageDir)
 
     # reading photo
     length = 0
