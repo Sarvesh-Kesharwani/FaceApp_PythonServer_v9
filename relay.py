@@ -1,4 +1,5 @@
 import RPi.GPIO as GPIO
+import time
 GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
  
 RELAIS_1_GPIO = 17
@@ -10,17 +11,17 @@ GPIO.setup(RELAIS_2_GPIO, GPIO.OUT)
 GPIO.setup(RELAIS_3_GPIO, GPIO.OUT)
 GPIO.setup(RELAIS_4_GPIO, GPIO.OUT)
 
-def extendActuator()
+def extendActuator():
 	print("Extneding")
 	GPIO.output(RELAIS_1_GPIO, GPIO.HIGH)
 	GPIO.output(RELAIS_2_GPIO, GPIO.LOW)
 
-def retractActuator()
+def retractActuator():
 	print("Retracting")
 	GPIO.output(RELAIS_1_GPIO, GPIO.LOW)
 	GPIO.output(RELAIS_2_GPIO, GPIO.HIGH)
 
-def stopActuator()
+def stopActuator():
 	print("Stop")
 	GPIO.output(RELAIS_1_GPIO, GPIO.LOW)
 	GPIO.output(RELAIS_1_GPIO, GPIO.LOW)
