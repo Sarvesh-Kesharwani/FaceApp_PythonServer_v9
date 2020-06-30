@@ -9,6 +9,36 @@ from datetime import datetime
 import time
 import RPi.GPIO as GPIO
 
+GPIO.setmode(GPIO.BCM)
+
+pirPin = 26
+RELAIS_1_GPIO = 17
+RELAIS_2_GPIO = 27
+RELAIS_3_GPIO = 5
+RELAIS_4_GPIO = 6
+GPIO.setup(pirPin, GPIO.IN) # GPIO Assign mode
+GPIO.setup(RELAIS_1_GPIO, GPIO.OUT)
+GPIO.setup(RELAIS_2_GPIO, GPIO.OUT)
+GPIO.setup(RELAIS_3_GPIO, GPIO.OUT)
+GPIO.setup(RELAIS_4_GPIO, GPIO.OUT)
+
+def extendActuator(person):
+	print("Extneding")
+	GPIO.output(RELAIS_1_GPIO, GPIO.HIGH)
+	GPIO.output(RELAIS_2_GPIO, GPIO.LOW)
+    time.sleep(preson*7)
+
+def retractActuator(person):
+	print("Retracting")
+	GPIO.output(RELAIS_1_GPIO, GPIO.LOW)
+	GPIO.output(RELAIS_2_GPIO, GPIO.HIGH)
+    time.sleep(preson*7)
+
+def stopActuator():
+	print("Stop")
+	GPIO.output(RELAIS_1_GPIO, GPIO.LOW)
+	GPIO.output(RELAIS_2_GPIO, GPIO.LOW)
+    time.sleep(2)
 
 def Face(pirPin):
     #don't render frame.
@@ -60,6 +90,10 @@ def Face(pirPin):
                 best_match_index = np.argmin(face_distances)
                 if matches[best_match_index]:
                     name = known_face_names[best_match_index]
+                    retractActuator(person=len(face_locations))
+                    stopActuator()
+                    extendActuator(person=len(face_locations))
+                    stopActuator()
                 else:
                     name = "Unknown"
                     now = datetime.now()
@@ -90,13 +124,8 @@ def Face(pirPin):
            camera.close()
 
         #print("I see someone named {}!".format(name))
-        
-GPIO.setmode(GPIO.BCM)
+
 #GPIO.setwarnings(False)
-pirPin = 26
-
-GPIO.setup(pirPin, GPIO.IN)
-
 print("Motion Sensor Alarm (CTRL+C to exit)")
 time.sleep(.2)
 print("Ready")
