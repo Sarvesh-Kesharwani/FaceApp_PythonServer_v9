@@ -20,7 +20,7 @@ def Face(pirPin):
     output = np.empty((240, 320, 3), dtype=np.uint8)
 
     #path to save unknown person's photos
-    path = 'Unknown_People//'
+    path = '/home/pi/python_server/Unknown_People/'
 
     #load known faces
     print("Loading known face image(s)")

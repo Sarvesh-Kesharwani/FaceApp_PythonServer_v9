@@ -5,9 +5,6 @@ import os
 import face_recognition
 import os
 import pickle
-from jnius import autoclass
-
-Math = autoclass("java.lang.Math")
 
 ##########################################################
 ##########################################################
@@ -19,8 +16,8 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((IP, Port))
 
 #Resources Used:
-DatabaseFile = 'dataset_faces.dat'
-imageDir = "Photos/"
+DatabaseFile = '/home/pi/python_server/dataset_faces.dat'
+imageDir = "/home/pi/python_server/Photos/"
 
 ##########################################################
 ##########################################################
@@ -285,16 +282,16 @@ def RecieveNamePhoto():
 
     if not os.path.exists(imageDir):
         print("Dir not found creating dir...")
-        os.mkdirs(imageDir)
+        os.mkdir(imageDir)
 
     # reading photo
     length = 0
     with open(imageDir + name + ".png", 'wb') as file:
         while length < photo_length_int:
-            bytes = clientsocket3.recv(Math.min(1024, (photo_length_int - length)))
+            bytes = clientsocket3.recv(min(1024, (photo_length_int - length)))
             length = length+len(bytes)
             file.write(bytes)
-            #print("Byte Length is: "+str(len(bytes)))
+            print("Byte Length is: "+str(len(bytes)))
             #print("Image Wrote Successfully.")
         file.close()
         print("Photo wrote successfully.")

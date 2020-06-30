@@ -29,13 +29,13 @@ def stopActuator():
 try:
 	while True:
 		extendActuator()
-		time.sleep(5)
+		time.sleep(10)
 	
 		stopActuator()
 		time.sleep(2)
 	
 		retractActuator()
-		time.sleep(5)
+		time.sleep(10)
 
 		stopActuator()
 		time.sleep(2)
