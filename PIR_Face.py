@@ -25,7 +25,7 @@ def Face(pirPin):
     #load known faces
     print("Loading known face image(s)")
     # Load face encodings
-    with open(r'/home/pi/pi/pi-reboot/dataset_faces.dat', 'rb') as f:
+    with open(r'/home/pi/python_server/dataset_faces.dat', 'rb') as f:
         all_face_encodings = pickle.load(f)
 
     # Grab the list of names and the list of encodings
