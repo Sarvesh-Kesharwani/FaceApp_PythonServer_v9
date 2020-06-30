@@ -16,7 +16,7 @@ camera.resolution = (320, 240)
 output = np.empty((240, 320, 3), dtype=np.uint8)
 
 #path to save unknown person's photos
-path = 'Unknown_People//'
+path = '../Unknown_People//'
 
 
 
