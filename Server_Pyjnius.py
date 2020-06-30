@@ -198,18 +198,22 @@ def BakeFaceEncoding():
         print("No Faces Found!")
         return 0
     if no_of_faces == 1:
-        face_encodings[person] = face_recognition.face_encodings(face)[0]
+        #face_encodings[person] = face_recognition.face_encodings(face)[0]
 
         if not os.path.exists(DatabaseFile):
             print("DatabaseFile not found creating it...")
             os.mkdir(DatabaseFile)
         try:
-            with open(DatabaseFile, 'ab') as f:
-                pickle.dump(face_encodings, f)
-                f.close()
+            with open(DatabaseFile, 'rb') as f:
+                loaded_encodings = pickle.load(f)        
         except IOError:
             return -1
-
+        try:
+            with open(DatabaseFile, 'wb') as f:
+                loaded_encodings[person] = face_recognition.face_encodings(face)[0]
+                pickle.dump(loaded_encodings, f)
+        except IOError:
+            return -1
         return 1
     else:
         print(person + "_img contains multiple faces!")
