@@ -26,25 +26,25 @@ def extendActuator(person):
 	print("Extneding")
 	GPIO.output(RELAIS_1_GPIO, GPIO.HIGH)
 	GPIO.output(RELAIS_2_GPIO, GPIO.LOW)
-    time.sleep(preson*7)
+	time.sleep(person*7)
 
 def retractActuator(person):
 	print("Retracting")
 	GPIO.output(RELAIS_1_GPIO, GPIO.LOW)
 	GPIO.output(RELAIS_2_GPIO, GPIO.HIGH)
-    time.sleep(preson*7)
+	time.sleep(person*7)
 
 def stopActuator():
 	print("Stop")
 	GPIO.output(RELAIS_1_GPIO, GPIO.LOW)
 	GPIO.output(RELAIS_2_GPIO, GPIO.LOW)
-    time.sleep(2)
+	time.sleep(2)
 
 def Face(pirPin):
     #don't render frame.
     #uses picamera library to capture frames. 
 
-    # Get a reference to the Raspberry Pi camera.
+    #Get a reference to the Raspberry Pi camera.
     camera = picamera.PiCamera()
     camera.resolution = (320, 240)
     output = np.empty((240, 320, 3), dtype=np.uint8)
@@ -92,10 +92,10 @@ def Face(pirPin):
                     name = known_face_names[best_match_index]
 		    #play names of detected people
                     lang = "hi"
-      		    sox_effects = ("speed", "1.1")
-		    for name in face_names:
-			speech = Speech(name, lang)
-			speech.play(sox_effects)
+                    sox_effects = ("speed", "1.1")
+                    for name in face_names:
+                        speech = Speech(name, lang)
+                        speech.play(sox_effects)
 		    
                     retractActuator(person=len(face_locations))
                     stopActuator()
@@ -105,10 +105,10 @@ def Face(pirPin):
                     name = "Unknown"
 		    #play names of detected people
                     lang = "hi"
-      		    sox_effects = ("speed", "1.1")
-		    for name in face_names:
-			speech = Speech(name, lang)
-			speech.play(sox_effects)
+                    sox_effects = ("speed", "1.1")
+                    for name in face_names:
+                        speech = Speech(name, lang)
+                        speech.play(sox_effects)
                     now = datetime.now()
                     dt_string = now.strftime("%d-%m-%Y, %H-%M-%S")
                     cv2.imwrite(path + dt_string + '.jpg', output)
