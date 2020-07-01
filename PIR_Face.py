@@ -26,19 +26,19 @@ def extendActuator(person):
 	print("Extneding")
 	GPIO.output(RELAIS_1_GPIO, GPIO.HIGH)
 	GPIO.output(RELAIS_2_GPIO, GPIO.LOW)
-    time.sleep(preson*7)
+	time.sleep(person*7)
 
 def retractActuator(person):
 	print("Retracting")
 	GPIO.output(RELAIS_1_GPIO, GPIO.LOW)
 	GPIO.output(RELAIS_2_GPIO, GPIO.HIGH)
-    time.sleep(preson*7)
+	time.sleep(person*7)
 
 def stopActuator():
 	print("Stop")
 	GPIO.output(RELAIS_1_GPIO, GPIO.LOW)
 	GPIO.output(RELAIS_2_GPIO, GPIO.LOW)
-    time.sleep(2)
+	time.sleep(2)
 
 def Face(pirPin):
     #don't render frame.
@@ -55,8 +55,13 @@ def Face(pirPin):
     #load known faces
     print("Loading known face image(s)")
     # Load face encodings
-    with open(r'/home/pi/python_server/dataset_faces.dat', 'rb') as f:
-        all_face_encodings = pickle.load(f)
+    while(True):
+        try:
+            with open(r'/home/pi/python_server/dataset_faces.dat', 'rb') as f:
+                all_face_encodings = pickle.load(f)
+                break
+        except IOError:
+            continue
 
     # Grab the list of names and the list of encodings
     known_face_names = list(all_face_encodings.keys())
@@ -105,7 +110,7 @@ def Face(pirPin):
 
         #play names of detected people
         lang = "hi"
-        sox_effects = ("speed", "1.2")
+        sox_effects = ("speed", "1.1")
         for name in face_names:
             speech = Speech(name, lang)
             speech.play(sox_effects)
