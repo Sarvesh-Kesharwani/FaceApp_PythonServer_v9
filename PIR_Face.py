@@ -26,19 +26,19 @@ def extendActuator(person):
 	print("Extneding")
 	GPIO.output(RELAIS_1_GPIO, GPIO.HIGH)
 	GPIO.output(RELAIS_2_GPIO, GPIO.LOW)
-	time.sleep(person*7)
+    time.sleep(preson*7)
 
 def retractActuator(person):
 	print("Retracting")
 	GPIO.output(RELAIS_1_GPIO, GPIO.LOW)
 	GPIO.output(RELAIS_2_GPIO, GPIO.HIGH)
-	time.sleep(person*7)
+    time.sleep(preson*7)
 
 def stopActuator():
 	print("Stop")
 	GPIO.output(RELAIS_1_GPIO, GPIO.LOW)
 	GPIO.output(RELAIS_2_GPIO, GPIO.LOW)
-	time.sleep(2)
+    time.sleep(2)
 
 def Face(pirPin):
     #don't render frame.
@@ -55,13 +55,8 @@ def Face(pirPin):
     #load known faces
     print("Loading known face image(s)")
     # Load face encodings
-    while(True):
-        try:
-            with open(r'/home/pi/python_server/dataset_faces.dat', 'rb') as f:
-                all_face_encodings = pickle.load(f)
-                break
-        except IOError:
-            continue
+    with open(r'/home/pi/python_server/dataset_faces.dat', 'rb') as f:
+        all_face_encodings = pickle.load(f)
 
     # Grab the list of names and the list of encodings
     known_face_names = list(all_face_encodings.keys())
@@ -95,12 +90,25 @@ def Face(pirPin):
                 best_match_index = np.argmin(face_distances)
                 if matches[best_match_index]:
                     name = known_face_names[best_match_index]
+		    #play names of detected people
+                    lang = "hi"
+      		    sox_effects = ("speed", "1.1")
+		    for name in face_names:
+			speech = Speech(name, lang)
+			speech.play(sox_effects)
+		    
                     retractActuator(person=len(face_locations))
                     stopActuator()
                     extendActuator(person=len(face_locations))
                     stopActuator()
                 else:
                     name = "Unknown"
+		    #play names of detected people
+                    lang = "hi"
+      		    sox_effects = ("speed", "1.1")
+		    for name in face_names:
+			speech = Speech(name, lang)
+			speech.play(sox_effects)
                     now = datetime.now()
                     dt_string = now.strftime("%d-%m-%Y, %H-%M-%S")
                     cv2.imwrite(path + dt_string + '.jpg', output)
@@ -108,12 +116,7 @@ def Face(pirPin):
 
         print(*face_names, sep = ", ")
 
-        #play names of detected people
-        lang = "hi"
-        sox_effects = ("speed", "1.1")
-        for name in face_names:
-            speech = Speech(name, lang)
-            speech.play(sox_effects)
+        
 
         #toggle process_this_frame var to run FR on alternate frames
         process_this_frame = not process_this_frame
