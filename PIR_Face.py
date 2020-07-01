@@ -90,12 +90,25 @@ def Face(pirPin):
                 best_match_index = np.argmin(face_distances)
                 if matches[best_match_index]:
                     name = known_face_names[best_match_index]
+		    #play names of detected people
+                    lang = "hi"
+      		    sox_effects = ("speed", "1.1")
+		    for name in face_names:
+			speech = Speech(name, lang)
+			speech.play(sox_effects)
+		    
                     retractActuator(person=len(face_locations))
                     stopActuator()
                     extendActuator(person=len(face_locations))
                     stopActuator()
                 else:
                     name = "Unknown"
+		    #play names of detected people
+                    lang = "hi"
+      		    sox_effects = ("speed", "1.1")
+		    for name in face_names:
+			speech = Speech(name, lang)
+			speech.play(sox_effects)
                     now = datetime.now()
                     dt_string = now.strftime("%d-%m-%Y, %H-%M-%S")
                     cv2.imwrite(path + dt_string + '.jpg', output)
@@ -103,12 +116,7 @@ def Face(pirPin):
 
         print(*face_names, sep = ", ")
 
-        #play names of detected people
-        lang = "hi"
-        sox_effects = ("speed", "1.2")
-        for name in face_names:
-            speech = Speech(name, lang)
-            speech.play(sox_effects)
+        
 
         #toggle process_this_frame var to run FR on alternate frames
         process_this_frame = not process_this_frame
