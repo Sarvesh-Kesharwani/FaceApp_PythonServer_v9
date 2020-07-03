@@ -2,7 +2,7 @@ import numpy as np
 import pickle
 import socket
 import os
-import face_recognition
+#import face_recognition
 import os
 import pickle
 
@@ -14,6 +14,7 @@ Port = 1998
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((IP, Port))
+#print(str(s.gettimeout()))
 
 #Resources Used:
 DatabaseFile = '/home/pi/python_server/dataset_faces.dat'
@@ -31,9 +32,7 @@ def SelectOp(op):
 
 def Server():
     jump = False
-    # start listening for any operations from client.
-    s.listen(999)
-    print("socket is listening...")
+
 
     # Always looking to connections.
     while True:
@@ -117,6 +116,73 @@ def Server():
                 print("Delete-Operation is done successfully.")
                 continue
 
+
+def NewServer():
+    # start listening for any operations from client.
+    s.listen(10)
+    print("socket is listening...")
+
+    # Always looking to connections.
+    while True:
+        print("Waiting for next operations...")
+        clientsocket, address = s.accept()
+        print("Server Connected With Client...")
+
+        OpCode = clientsocket.recv(7).decode('utf-8')
+        if( OpCode == "?UPDATE"):
+            #reading name length
+            name_length = clientsocket.recv(2).decode()
+            print("Name_length is:" + name_length)
+            #reading name
+            name = clientsocket.recv(int(name_length)).decode()
+            print("Name is :" + name)
+
+
+
+            # reading photo length
+            photo_length_list = []
+            while True:
+                tempbyte = clientsocket.recv(1).decode()
+                print(tempbyte)
+                if tempbyte != '$':
+                    photo_length_list.append(tempbyte)
+                else:
+                    break
+            photo_length = np.array(photo_length_list)
+            photo_length_string = ''.join(photo_length)
+            photo_length_int = int(photo_length_string)
+            print("Photo_length is :" + photo_length_string)
+
+            #check if image dir exist
+            if not os.path.exists(imageDir):
+                print("Dir not found creating dir...")
+                os.mkdir(imageDir)
+
+            # reading photo
+            length = 0
+            with open(imageDir + name + ".png", 'wb') as file:
+                while length < photo_length_int:
+                    bytes = clientsocket.recv(min(1024, (photo_length_int - length)))
+                    length = length + len(bytes)
+                    file.write(bytes)
+                    print("Byte Length is: " + str(len(bytes)))
+                    # print("Image Wrote Successfully.")
+                file.close()
+                print("Photo wrote successfully.")
+
+            #send ACK
+            clientsocket.sendall("Name Received Successfully.\n".encode('utf-8'))
+
+        if(OpCode == "?DELETE"):
+           # reading name length
+            name_length = clientsocket.recv(2).decode()
+            print("Name_length is:" + name_length)
+            # reading name
+            name = clientsocket.recv(int(name_length)).decode()
+            print("Name is :" + name)
+
+           #send ACK
+            clientsocket.sendall("Name&Photo Received Successfully.\n".encode('utf-8'))
 
 
 
@@ -352,5 +418,5 @@ def SendNamePhoto(name):
     # receive success ACK
 
 # RecieveNamePhoto()
-# SendName("sarvesh")
-Server()
+# SendNamePhoto("sarvesh")
+NewServer()
