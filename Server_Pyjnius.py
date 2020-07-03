@@ -9,7 +9,7 @@ import pickle
 ##########################################################
 ##########################################################
 # Creating Common Connection Settings for all Connection made in this script.
-IP = "localhost"
+IP = "192.168.43.205"
 Port = 1998
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -17,8 +17,8 @@ s.bind((IP, Port))
 #print(str(s.gettimeout()))
 
 #Resources Used:
-DatabaseFile = '/home/pi/python_server/dataset_faces.dat'
-imageDir = "/home/pi/python_server/Photos/"
+DatabaseFile = "dataset_faces_copy.dat"        #'/home/pi/python_server/dataset_faces.dat'
+imageDir = "TestPhotos/"   #"/home/pi/python_server/Photos/"
 
 ##########################################################
 ##########################################################
@@ -28,7 +28,6 @@ def SelectOp(op):
         '2': "DELETE",
     }
     return (switcher.get(op, "INVALID_OP!"))
-
 
 def Server():
     jump = False
@@ -124,11 +123,14 @@ def NewServer():
 
     # Always looking to connections.
     while True:
-        print("Waiting for next operations...")
+        print("Waiting for next operation...")
         clientsocket, address = s.accept()
         print("Server Connected With Client...")
 
+        #if (clientsocket.recv(7).decode() != "?OPCODE"):
+         #   continue
         OpCode = clientsocket.recv(7).decode('utf-8')
+        print("opcode is:"+str(OpCode))
         if( OpCode == "?UPDATE"):
             #reading name length
             name_length = clientsocket.recv(2).decode()
