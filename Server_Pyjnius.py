@@ -127,6 +127,7 @@ def NewServer():
         clientsocket, address = s.accept()
         print("Server Connected With Client...")
 
+        #############Update#######################
         OpCode = clientsocket.recv(7).decode("utf-8", errors="replace")
         if( OpCode == "?UPDATE"):
             #reading name length
@@ -172,7 +173,9 @@ def NewServer():
             #send ACK
             print("Photo&Name ACK sent. ")
             clientsocket.sendall("Name&Photo Received Successfully.\n".encode('utf-8'))
+            clientsocket.close()
 
+        #############Delete#######################
         if(OpCode == "?DELETE"):
            # reading name length
             name_length = clientsocket.recv(2).decode()
@@ -183,63 +186,44 @@ def NewServer():
 
            #send ACK
             print("Name ACK sent. ")
-            clientsocket.sendall("Name Received Successfully.\n".encode('utf-8'))
+            clientsocket.sendall("Sync Done.\n".encode('utf-8'))
 
 
+           #delete person from dataset
+            signal, PoppedName = DeletePerson(name)
+            if(signal == 2):
+                clientsocket.sendall(PoppedName+" has been Blocked.\n".encode('utf-8'))
+                print(PoppedName+" has been Blocked.")
 
-def DeleteOP():
-    # Reading Op byte
-    print("Delete-Operation is being done...")
+            if(signal == 3):
+                clientsocket.sendall("Member is Blocked already.\n".encode('utf-8'))
+                print("Member is Blocked already.")
 
-    # Read name to delete
-    s.listen(999)
-    print("socket is listening...")
-    clientsocket, address = s.accept()
-    print(f"Connection from {address} has been established!")
 
-    # receive name delimeter
-    #-------------------------------------#
-    # reads first 2 bytes for name's length in bytes
-    name_length = clientsocket.recv(2).decode()
-    print("DeleteName_length is:" + name_length)
-
-    # recieve name
-    delete_name = clientsocket.recv(int(name_length)).decode()
-    print("DeleteName is :" + delete_name)
-    clientsocket.close()
-
-    DeletePerson(delete_name)
-
+            clientsocket.close()
 
 def DeletePerson(name):
 
     try:
         f = open(DatabaseFile, 'rb')
         all_face_encodings = pickle.load(f)
-        all_face_encodings.pop(name)
         print(str(all_face_encodings))
+
+        try:
+            PoppedName = all_face_encodings.pop(name)
+            return 2, PoppedName
+        except KeyError:
+            return 3, None
+
         f.close()
         try:
             with open(DatabaseFile, 'wb') as f1:
                 pickle.dump(all_face_encodings, f1)
                 f1.close()
         except IOError:
-            return -1
+            return -1, None
     except IOError:
-        return -1
-
-    '''
-    with open('dataset_faces.dat', 'rb') as f2:
-        try:
-            while True:
-                temp_face_encodings = pickle.load(f2)
-                print(str(temp_face_encodings))
-
-        except EOFError:
-            pass
-    '''
-    # Example:
-    # DeletePerson('madhavi')
+        return -1, None
 
 
 def BakeFaceEncoding():
@@ -285,6 +269,51 @@ def BakeFaceEncoding():
     else:
         print(person + "_img contains multiple faces!")
         return 2
+
+def SendNamePhoto(name):
+    s.listen(999)
+    print("socket is listening...")
+    clientsocket, address = s.accept()
+    print(f"Connection from {address} has been established!")
+
+    # send name_delimeter
+    clientsocket.sendall("?name\n".encode('utf-8'))
+    # send name
+    name1 = name + "\n"
+    print("Name was sent succesfully.")
+    clientsocket.sendall(name1.encode('utf-8'))
+
+    # send image_delimeter
+    clientsocket.sendall("?start\n".encode('utf-8'))
+    # send image
+    imageFile = open("hand.jpg", 'rb')
+    Imagecontent = imageFile.read()
+    imageSize = len(Imagecontent)
+    print("ImageSize is:" + str(imageSize))
+
+    # send imageSize
+    imageSize_str = str(imageSize) + "\n"
+    clientsocket.sendall(imageSize_str.encode('utf-8'))
+    # send imageFile_delimeter
+    clientsocket.sendall("?imageFile\n".encode('utf-8'))
+    clientsocket.close()
+
+    # Creating new Connetion to send music
+    s.listen(999)
+    print("socket is listening...")
+    clientsocket, address = s.accept()
+    print(f"Connection from {address} has been established!")
+    print("Ready to receive Image....")
+
+    # send imageFile
+    clientsocket.sendall(Imagecontent)
+    print("Content type is :" + str(type(Imagecontent)))
+    print("Image File Content is : " + str(Imagecontent))
+    print("Image was sent succesfully.")
+
+    # receive success ACK
+
+
 
 # File Transfer
 def RecieveNamePhoto():
@@ -373,51 +402,28 @@ def RecieveNamePhoto():
 
     imageFile = imageDir + name + ".png"
     return name, imageFile
+def DeleteOP():
+    # Reading Op byte
+    print("Delete-Operation is being done...")
 
-
-def SendNamePhoto(name):
+    # Read name to delete
     s.listen(999)
     print("socket is listening...")
     clientsocket, address = s.accept()
     print(f"Connection from {address} has been established!")
 
-    # send name_delimeter
-    clientsocket.sendall("?name\n".encode('utf-8'))
-    # send name
-    name1 = name + "\n"
-    print("Name was sent succesfully.")
-    clientsocket.sendall(name1.encode('utf-8'))
+    # receive name delimeter
+    #-------------------------------------#
+    # reads first 2 bytes for name's length in bytes
+    name_length = clientsocket.recv(2).decode()
+    print("DeleteName_length is:" + name_length)
 
-    # send image_delimeter
-    clientsocket.sendall("?start\n".encode('utf-8'))
-    # send image
-    imageFile = open("hand.jpg", 'rb')
-    Imagecontent = imageFile.read()
-    imageSize = len(Imagecontent)
-    print("ImageSize is:" + str(imageSize))
-
-    # send imageSize
-    imageSize_str = str(imageSize) + "\n"
-    clientsocket.sendall(imageSize_str.encode('utf-8'))
-    # send imageFile_delimeter
-    clientsocket.sendall("?imageFile\n".encode('utf-8'))
+    # recieve name
+    delete_name = clientsocket.recv(int(name_length)).decode()
+    print("DeleteName is :" + delete_name)
     clientsocket.close()
 
-    # Creating new Connetion to send music
-    s.listen(999)
-    print("socket is listening...")
-    clientsocket, address = s.accept()
-    print(f"Connection from {address} has been established!")
-    print("Ready to receive Image....")
-
-    # send imageFile
-    clientsocket.sendall(Imagecontent)
-    print("Content type is :" + str(type(Imagecontent)))
-    print("Image File Content is : " + str(Imagecontent))
-    print("Image was sent succesfully.")
-
-    # receive success ACK
-
+    DeletePerson(delete_name)
 # RecieveNamePhoto()
 # SendNamePhoto("sarvesh")
 NewServer()
