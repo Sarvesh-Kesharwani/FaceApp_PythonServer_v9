@@ -3,18 +3,18 @@ import RPi.GPIO as GPIO
 import time
 GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
 
-
 RELAIS_1_GPIO = 17
 RELAIS_2_GPIO = 27
 RELAIS_3_GPIO = 5
 RELAIS_4_GPIO = 6
-pirPin = 26
+pirPin = 22
 
 GPIO.setup(RELAIS_1_GPIO, GPIO.OUT) # GPIO Assign mode
 GPIO.setup(RELAIS_2_GPIO, GPIO.OUT)
 GPIO.setup(RELAIS_3_GPIO, GPIO.OUT)
 GPIO.setup(RELAIS_4_GPIO, GPIO.OUT)
 GPIO.setup(pirPin, GPIO.IN)
+
 def extendActuator():
 	print("Extneding")
 	GPIO.output(RELAIS_1_GPIO, GPIO.HIGH)
@@ -32,16 +32,16 @@ def stopActuator():
 
 def operation(pirPin):
 	extendActuator()
-	time.sleep(3)
+	time.sleep(10)
 	
 	stopActuator()
-	time.sleep(2)
+	time.sleep(1)
 	
 	retractActuator()
-	time.sleep(3)
+	time.sleep(10)
 
 	stopActuator()
-	time.sleep(2)
+	time.sleep(1)
 
 print("Gate Control (CTRL+C to exit)")
 time.sleep(.2)
