@@ -28,6 +28,7 @@ imageDir = "TestPhotos/"   #"/home/pi/python_server/Photos/"
 
 def NewServer():
     # start listening for any operations from client.
+    global all_face_encodings
     s.listen(10)
     print("socket is listening...")
 
@@ -136,17 +137,36 @@ def NewServer():
 
             known_face_names = list(all_face_encodings.keys())
 
-            for name in known_face_names:
-                print(name+"\n")
-                clientsocket.send(name+"\n".encode('utf-8'))
+            NoOfPeople = str(len(known_face_names))+"\n"
+            print("NoOfPeople is:"+NoOfPeople)
+            clientsocket.sendall(NoOfPeople.encode('utf-8'))
 
-                imageFile = open(imageDir+"/"+name+".png", 'rb')
+            for name in known_face_names:
+                print(name)
+                Readyname = str(name)+"\n"
+                clientsocket.sendall(Readyname.encode('utf-8'))
+
+                try:
+                    # if person_photo available
+                    imageFile = open(imageDir+"/"+name+".png", 'rb')
+
+                except IOError:
+                    # if person_photo not available
+                    imageFile = open(imageDir+"/"+"unknown_person"+".png", 'rb')
+                    print("Image is not available!")
+
                 Imagecontent = imageFile.read()
+                imageFile.close()
                 imageSize = len(Imagecontent)
                 imageSize_str = str(imageSize) + "\n"
 
+                print("photo size is:"+str(imageSize))
                 clientsocket.sendall(imageSize_str.encode('utf-8'))
+                print("photo is:"+str(Imagecontent)+"\n")
                 clientsocket.sendall(Imagecontent)
+
+
+
 
 
 
