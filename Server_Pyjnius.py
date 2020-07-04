@@ -127,10 +127,7 @@ def NewServer():
         clientsocket, address = s.accept()
         print("Server Connected With Client...")
 
-        #if (clientsocket.recv(7).decode() != "?OPCODE"):
-         #   continue
-        OpCode = clientsocket.recv(7).decode('utf-8')
-        print("opcode is:"+str(OpCode))
+        OpCode = clientsocket.recv(7).decode("utf-8", errors="replace")
         if( OpCode == "?UPDATE"):
             #reading name length
             name_length = clientsocket.recv(2).decode()
@@ -170,10 +167,11 @@ def NewServer():
                     print("Byte Length is: " + str(len(bytes)))
                     # print("Image Wrote Successfully.")
                 file.close()
-                print("Photo wrote successfully.")
+                print("Photo&Name wrote successfully.")
 
             #send ACK
-            clientsocket.sendall("Name Received Successfully.\n".encode('utf-8'))
+            print("Photo&Name ACK sent. ")
+            clientsocket.sendall("Name&Photo Received Successfully.\n".encode('utf-8'))
 
         if(OpCode == "?DELETE"):
            # reading name length
@@ -184,7 +182,8 @@ def NewServer():
             print("Name is :" + name)
 
            #send ACK
-            clientsocket.sendall("Name&Photo Received Successfully.\n".encode('utf-8'))
+            print("Name ACK sent. ")
+            clientsocket.sendall("Name Received Successfully.\n".encode('utf-8'))
 
 
 
