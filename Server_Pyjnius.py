@@ -22,98 +22,8 @@ imageDir = "TestPhotos/"   #"/home/pi/python_server/Photos/"
 
 ##########################################################
 ##########################################################
-def SelectOp(op):
-    switcher = {
-        '1': "APPEND",
-        '2': "DELETE",
-    }
-    return (switcher.get(op, "INVALID_OP!"))
-
-def Server():
-    jump = False
 
 
-    # Always looking to connections.
-    while True:
-        if jump == False:
-            print("Waiting for next operations...")
-            clientsocket, address = s.accept()
-            print("Server Connected With Client...")
-
-            # operation delimiter
-            sayit = False
-            if not clientsocket.recv(4).decode('utf-8') == "?OPE":
-                sayit = True
-                continue
-            sayit = False
-            print("Received ?OPE delimiter.")
-
-            received_op = clientsocket.recv(1).decode('utf-8')
-            print("Operation is : " + received_op)
-
-            if sayit == True:
-                clientsocket.sendall("Select a Operation\n".encode('utf-8'))
-                print("Select a Operation!")
-            else:
-                clientsocket.sendall("Operation Selected Successfully.\n".encode('utf-8'))
-                print("sending Operation Selected Successfully.....")
-            clientsocket.close()
-            jump = False
-
-        # if operation is APPEND
-        if SelectOp(received_op) == "APPEND":
-            print("Append-Operation is being done...")
-            result = BakeFaceEncoding()
-
-            #create connection for sending ACK
-            #Warning! hide the navMenu in app until this connection successfully sends ACK
-            # or closes connection otherwise it will stuck here for making a connection to send ack
-            #and no one will listen in app
-            #recieveACK function handles this connection in APP
-            s.listen(999)
-            print("socket is listening...")
-            CSckt, CAddress = s.accept()
-            print(f"Connection from {address} has been established!")
-
-
-            CSckt.sendall("?ACK\n".encode('utf-8'))
-            if result == 3:
-                # it means user didn't ADD any person,
-                # just went to some other menu option so continue server loop
-                # for listning to next operation sent by user.
-                continue
-            if result == -1:
-                CSckt.sendall("Database-Resource is not available!\n".encode('utf-8'))
-                continue
-            if result == 0:
-                CSckt.sendall("No Faces Found!\n".encode('utf-8'))
-                jump = True
-                received_op = '1'
-                continue
-            if result == 1:
-                CSckt.sendall("Person Added Successfully.\n".encode('utf-8'))
-                print("Person Added Successfully.")
-                continue
-            if result == 2:
-                CSckt.sendall("Multiple Faces Found!\n".encode('utf-8'))
-                jump = True
-                received_op = '1'
-                continue
-            CSckt.close()
-
-        # if operation is DELETE
-        if SelectOp(received_op) == "DELETE":
-            print("Delete-Operation is being done...")
-            result = DeleteOP()
-
-            clientsocket.sendall("?ACK\n".encode('utf-8'))
-            if result == -1:
-                clientsocket.sendall("Database-Resource is not available!\n".encode('utf-8'))
-                continue
-            if result == 1:
-                clientsocket.sendall("Person Removed Successfully.\n".encode('utf-8'))
-                print("Delete-Operation is done successfully.")
-                continue
 
 
 def NewServer():
@@ -214,6 +124,33 @@ def NewServer():
 
 
             clientsocket.close()
+
+        if(OpCode == "?RETREV"):
+            print("grab started...")
+
+            try:
+                f = open(DatabaseFile, 'rb')
+                all_face_encodings = pickle.load(f)
+            except IOError:
+                clientsocket.sendall("Database is busy!".encode('utf-8'))
+
+            known_face_names = list(all_face_encodings.keys())
+
+            for name in known_face_names:
+                print(name+"\n")
+                clientsocket.send(name+"\n".encode('utf-8'))
+
+                imageFile = open(imageDir+"/"+name+".png", 'rb')
+                Imagecontent = imageFile.read()
+                imageSize = len(Imagecontent)
+                imageSize_str = str(imageSize) + "\n"
+
+                clientsocket.sendall(imageSize_str.encode('utf-8'))
+                clientsocket.sendall(Imagecontent)
+
+
+
+
 
 def DeletePerson(name):
 
@@ -317,8 +254,103 @@ def SendNamePhoto(name):
 
     # receive success ACK
 
+def GrabCards():
 
-"""
+    """
+def Server():
+    jump = False
+
+
+    # Always looking to connections.
+    while True:
+        if jump == False:
+            print("Waiting for next operations...")
+            clientsocket, address = s.accept()
+            print("Server Connected With Client...")
+
+            # operation delimiter
+            sayit = False
+            if not clientsocket.recv(4).decode('utf-8') == "?OPE":
+                sayit = True
+                continue
+            sayit = False
+            print("Received ?OPE delimiter.")
+
+            received_op = clientsocket.recv(1).decode('utf-8')
+            print("Operation is : " + received_op)
+
+            if sayit == True:
+                clientsocket.sendall("Select a Operation\n".encode('utf-8'))
+                print("Select a Operation!")
+            else:
+                clientsocket.sendall("Operation Selected Successfully.\n".encode('utf-8'))
+                print("sending Operation Selected Successfully.....")
+            clientsocket.close()
+            jump = False
+
+        # if operation is APPEND
+        if SelectOp(received_op) == "APPEND":
+            print("Append-Operation is being done...")
+            result = BakeFaceEncoding()
+
+            #create connection for sending ACK
+            #Warning! hide the navMenu in app until this connection successfully sends ACK
+            # or closes connection otherwise it will stuck here for making a connection to send ack
+            #and no one will listen in app
+            #recieveACK function handles this connection in APP
+            s.listen(999)
+            print("socket is listening...")
+            CSckt, CAddress = s.accept()
+            print(f"Connection from {address} has been established!")
+
+
+            CSckt.sendall("?ACK\n".encode('utf-8'))
+            if result == 3:
+                # it means user didn't ADD any person,
+                # just went to some other menu option so continue server loop
+                # for listning to next operation sent by user.
+                continue
+            if result == -1:
+                CSckt.sendall("Database-Resource is not available!\n".encode('utf-8'))
+                continue
+            if result == 0:
+                CSckt.sendall("No Faces Found!\n".encode('utf-8'))
+                jump = True
+                received_op = '1'
+                continue
+            if result == 1:
+                CSckt.sendall("Person Added Successfully.\n".encode('utf-8'))
+                print("Person Added Successfully.")
+                continue
+            if result == 2:
+                CSckt.sendall("Multiple Faces Found!\n".encode('utf-8'))
+                jump = True
+                received_op = '1'
+                continue
+            CSckt.close()
+
+        # if operation is DELETE
+        if SelectOp(received_op) == "DELETE":
+            print("Delete-Operation is being done...")
+            result = DeleteOP()
+
+            clientsocket.sendall("?ACK\n".encode('utf-8'))
+            if result == -1:
+                clientsocket.sendall("Database-Resource is not available!\n".encode('utf-8'))
+                continue
+            if result == 1:
+                clientsocket.sendall("Person Removed Successfully.\n".encode('utf-8'))
+                print("Delete-Operation is done successfully.")
+                continue
+
+
+def SelectOp(op):
+    switcher = {
+        '1': "APPEND",
+        '2': "DELETE",
+    }
+    return (switcher.get(op, "INVALID_OP!"))
+
 # File Transfer
 def RecieveNamePhoto():
     print("Reading Name & Photo...")
