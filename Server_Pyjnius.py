@@ -170,7 +170,7 @@ def NewServer():
 
             #send ACK
             print("Photo&Name ACK sent. ")
-            clientsocket.sendall("Sync Done.\n".encode('utf-8'))
+            clientsocket.sendall("?SYNC_DONE\n".encode('utf-8'))
 
             #update person
             imageFile = imageDir + name + ".png"
@@ -199,7 +199,7 @@ def NewServer():
 
            #send ACK
             print("Name ACK sent. ")
-            clientsocket.sendall("Sync Done.\n".encode('utf-8'))
+            clientsocket.sendall("?SYNC_DONE\n".encode('utf-8'))
 
 
            #delete person from dataset
