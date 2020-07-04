@@ -137,8 +137,6 @@ def NewServer():
             name = clientsocket.recv(int(name_length)).decode()
             print("Name is :" + name)
 
-
-
             # reading photo length
             photo_length_list = []
             while True:
@@ -172,8 +170,23 @@ def NewServer():
 
             #send ACK
             print("Photo&Name ACK sent. ")
-            clientsocket.sendall("Name&Photo Received Successfully.\n".encode('utf-8'))
+            clientsocket.sendall("Sync Done.\n".encode('utf-8'))
+
+            #update person
+            imageFile = imageDir + name + ".png"
+            signal = BakeFaceEncoding(name, imageFile)
+
+            if (signal == 1):
+                clientsocket.sendall("Member Added Successfully.\n".encode('utf-8'))
+            if(signal == 0):
+                clientsocket.sendall("No Faces Found, Take Clear Photo of Member's Face\n".encode('utf-8'))
+            if (signal == 2):
+                clientsocket.sendall("Multiple Faces Found, Take one member photo at a time.\n".encode('utf-8'))
+            if (signal == -1):
+                clientsocket.sendall("Database is Busy!\n".encode('utf-8'))
+
             clientsocket.close()
+
 
         #############Delete#######################
         if(OpCode == "?DELETE"):
@@ -207,7 +220,7 @@ def DeletePerson(name):
     try:
         f = open(DatabaseFile, 'rb')
         all_face_encodings = pickle.load(f)
-        print(str(all_face_encodings))
+        #print(str(all_face_encodings))
 
         try:
             PoppedName = all_face_encodings.pop(name)
@@ -225,16 +238,9 @@ def DeletePerson(name):
     except IOError:
         return -1, None
 
+def BakeFaceEncoding(name, imageFile):
 
-def BakeFaceEncoding():
-    name, imageFile = RecieveNamePhoto()
     print("image dir to find face is: "+ imageFile)
-    #########checking for OP#############
-    if (not name) and (not imageFile):
-        print("Rolling Back From BackFaceEncoding!")
-        return 3
-    #####################################
-
     print(f"Backing Face-Encoding with Received photo & name.")
     dir = imageFile
     person = name
@@ -249,8 +255,6 @@ def BakeFaceEncoding():
         print("No Faces Found!")
         return 0
     if no_of_faces == 1:
-        #face_encodings[person] = face_recognition.face_encodings(face)[0]
-
         if not os.path.exists(DatabaseFile):
             print("DatabaseFile not found creating it...")
             os.mkdir(DatabaseFile)
@@ -263,9 +267,9 @@ def BakeFaceEncoding():
             with open(DatabaseFile, 'wb') as f:
                 loaded_encodings[person] = face_recognition.face_encodings(face)[0]
                 pickle.dump(loaded_encodings, f)
+                return 1
         except IOError:
             return -1
-        return 1
     else:
         print(person + "_img contains multiple faces!")
         return 2
@@ -314,7 +318,7 @@ def SendNamePhoto(name):
     # receive success ACK
 
 
-
+"""
 # File Transfer
 def RecieveNamePhoto():
     print("Reading Name & Photo...")
@@ -426,4 +430,5 @@ def DeleteOP():
     DeletePerson(delete_name)
 # RecieveNamePhoto()
 # SendNamePhoto("sarvesh")
+"""
 NewServer()
