@@ -5,11 +5,12 @@ import os
 # import face_recognition
 import os
 import pickle
+from PIL import Image
 
 ##########################################################
 ##########################################################
 # Creating Common Connection Settings for all Connection made in this script.
-IP = "192.168.43.205"
+IP = "192.168.43.215"
 Port = 1998
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -155,8 +156,18 @@ def NewServer():
                 ImageContent = imageFile.read()
                 imageFile.close()
                 imageSize = len(ImageContent)
-                imageSize_str = str(imageSize) + "\n"
+                if imageSize > 10000:
+                    #then compress image first
+                    temp_image = Image.open(imageDir + "/" + name + ".png")
+                    temp_image = temp_image.resize((144, 256), Image.ANTIALIAS)
+                    temp_image.save(imageDir + "/" + name + ".png", "PNG")
+                    temp_image.close()
+                    imageFile = open(imageDir + "/" + name + ".png", 'rb')
+                    ImageContent = imageFile.read()
+                    imageSize = len(ImageContent)
+                    imageFile.close()
 
+                imageSize_str = str(imageSize) + "\n"
                 PhotoSizes.append(imageSize_str)
                 Photos.append(ImageContent)
 
@@ -168,14 +179,14 @@ def NewServer():
             for PhotoSize in PhotoSizes:
                 clientsocket.sendall(PhotoSize.encode('utf-8'))
 
-            i=1
+            i = 1
             for Photo in Photos:
-                print("wating for connection "+str(i))
+                print("Waiting for connection "+str(i))
                 clientsocket, address = s.accept()
                 print("Connection "+str(i))
                 clientsocket.sendall(Photo)
                 print("Photo sent.")
-                i+=1
+                i += 1
                 #print("Photos are:" + str(Photo)+"\n")
             clientsocket.close()
 
