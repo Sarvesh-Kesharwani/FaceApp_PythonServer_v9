@@ -2,7 +2,7 @@ import numpy as np
 import pickle
 import socket
 import os
-#import face_recognition
+# import face_recognition
 import os
 import pickle
 
@@ -14,16 +14,15 @@ Port = 1998
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((IP, Port))
-#print(str(s.gettimeout()))
+# print(str(s.gettimeout()))
 
-#Resources Used:
-DatabaseFile = "dataset_faces_copy.dat"        #'/home/pi/python_server/dataset_faces.dat'
-imageDir = "TestPhotos/"   #"/home/pi/python_server/Photos/"
+# Resources Used:
+DatabaseFile = "dataset_faces_copy.dat"  # '/home/pi/python_server/dataset_faces.dat'
+imageDir = "TestPhotos/"  # "/home/pi/python_server/Photos/"
+
 
 ##########################################################
 ##########################################################
-
-
 
 
 def NewServer():
@@ -40,11 +39,11 @@ def NewServer():
 
         #############Update#######################
         OpCode = clientsocket.recv(7).decode("utf-8", errors="replace")
-        if( OpCode == "?UPDATE"):
-            #reading name length
+        if OpCode == "?UPDATE":
+            # reading name length
             name_length = clientsocket.recv(2).decode()
             print("Name_length is:" + name_length)
-            #reading name
+            # reading name
             name = clientsocket.recv(int(name_length)).decode()
             print("Name is :" + name)
 
@@ -62,7 +61,7 @@ def NewServer():
             photo_length_int = int(photo_length_string)
             print("Photo_length is :" + photo_length_string)
 
-            #check if image dir exist
+            # check if image dir exist
             if not os.path.exists(imageDir):
                 print("Dir not found creating dir...")
                 os.mkdir(imageDir)
@@ -79,54 +78,51 @@ def NewServer():
                 file.close()
                 print("Photo&Name wrote successfully.")
 
-            #send ACK
+            # send ACK
             print("Photo&Name ACK sent. ")
             clientsocket.sendall("?SYNC_DONE\n".encode('utf-8'))
 
-            #update person
+            # update person
             imageFile = imageDir + name + ".png"
             signal = BakeFaceEncoding(name, imageFile)
 
-            if (signal == 1):
+            if signal == 1:
                 clientsocket.sendall("Member Added Successfully.\n".encode('utf-8'))
-            if(signal == 0):
+            if signal == 0:
                 clientsocket.sendall("No Faces Found, Take Clear Photo of Member's Face\n".encode('utf-8'))
-            if (signal == 2):
+            if signal == 2:
                 clientsocket.sendall("Multiple Faces Found, Take one member photo at a time.\n".encode('utf-8'))
-            if (signal == -1):
+            if signal == -1:
                 clientsocket.sendall("Database is Busy!\n".encode('utf-8'))
 
             clientsocket.close()
 
-
         #############Delete#######################
-        if(OpCode == "?DELETE"):
-           # reading name length
+        if OpCode == "?DELETE":
+            # reading name length
             name_length = clientsocket.recv(2).decode()
             print("Name_length is:" + name_length)
             # reading name
             name = clientsocket.recv(int(name_length)).decode()
             print("Name is :" + name)
 
-           #send ACK
+            # send ACK
             print("Name ACK sent. ")
             clientsocket.sendall("?SYNC_DONE\n".encode('utf-8'))
 
-
-           #delete person from dataset
+            # delete person from dataset
             signal, PoppedName = DeletePerson(name)
-            if(signal == 2):
-                clientsocket.sendall(PoppedName+" has been Blocked.\n".encode('utf-8'))
-                print(PoppedName+" has been Blocked.")
+            if signal == 2:
+                clientsocket.sendall(PoppedName + " has been Blocked.\n".encode('utf-8'))
+                print(PoppedName + " has been Blocked.")
 
-            if(signal == 3):
+            if signal == 3:
                 clientsocket.sendall("Member is Blocked already.\n".encode('utf-8'))
                 print("Member is Blocked already.")
 
-
             clientsocket.close()
 
-        if(OpCode == "?RETREV"):
+        if OpCode == "?RETREV":
             print("grab started...")
 
             try:
@@ -137,47 +133,59 @@ def NewServer():
 
             known_face_names = list(all_face_encodings.keys())
 
-            NoOfPeople = str(len(known_face_names))+"\n"
-            print("NoOfPeople is:"+NoOfPeople)
+            NoOfPeople = str(len(known_face_names)) + "\n"
+            print("NoOfPeople is:" + NoOfPeople)
             clientsocket.sendall(NoOfPeople.encode('utf-8'))
 
+            Names = []
+            PhotoSizes = []
+            Photos = []
             for name in known_face_names:
-                print(name)
-                Readyname = str(name)+"\n"
-                clientsocket.sendall(Readyname.encode('utf-8'))
-
+                ReadyName = str(name) + "\n"
+                Names.append(ReadyName)
                 try:
                     # if person_photo available
-                    imageFile = open(imageDir+"/"+name+".png", 'rb')
+                    imageFile = open(imageDir + "/" + name + ".png", 'rb')
 
                 except IOError:
                     # if person_photo not available
-                    imageFile = open(imageDir+"/"+"unknown_person"+".png", 'rb')
+                    imageFile = open(imageDir + "/" + "unknown_person" + ".png", 'rb')
                     print("Image is not available!")
 
-                Imagecontent = imageFile.read()
+                ImageContent = imageFile.read()
                 imageFile.close()
-                imageSize = len(Imagecontent)
+                imageSize = len(ImageContent)
                 imageSize_str = str(imageSize) + "\n"
 
-                print("photo size is:"+str(imageSize))
-                clientsocket.sendall(imageSize_str.encode('utf-8'))
-                print("photo is:"+str(Imagecontent)+"\n")
-                clientsocket.sendall(Imagecontent)
+                PhotoSizes.append(imageSize_str)
+                Photos.append(ImageContent)
 
+            print("Names are:" + str(Names))
+            print("Photo Sizes are:" + str(PhotoSizes))
 
+            for name in Names:
+                clientsocket.sendall(name.encode('utf-8'))
+            for PhotoSize in PhotoSizes:
+                clientsocket.sendall(PhotoSize.encode('utf-8'))
 
-
-
+            i=1
+            for Photo in Photos:
+                print("wating for connection "+str(i))
+                clientsocket, address = s.accept()
+                print("Connection "+str(i))
+                clientsocket.sendall(Photo)
+                print("Photo sent.")
+                i+=1
+                #print("Photos are:" + str(Photo)+"\n")
+            clientsocket.close()
 
 
 
 def DeletePerson(name):
-
     try:
         f = open(DatabaseFile, 'rb')
         all_face_encodings = pickle.load(f)
-        #print(str(all_face_encodings))
+        # print(str(all_face_encodings))
 
         try:
             PoppedName = all_face_encodings.pop(name)
@@ -195,9 +203,9 @@ def DeletePerson(name):
     except IOError:
         return -1, None
 
-def BakeFaceEncoding(name, imageFile):
 
-    print("image dir to find face is: "+ imageFile)
+def BakeFaceEncoding(name, imageFile):
+    print("image dir to find face is: " + imageFile)
     print(f"Backing Face-Encoding with Received photo & name.")
     dir = imageFile
     person = name
@@ -217,7 +225,7 @@ def BakeFaceEncoding(name, imageFile):
             os.mkdir(DatabaseFile)
         try:
             with open(DatabaseFile, 'rb') as f:
-                loaded_encodings = pickle.load(f)        
+                loaded_encodings = pickle.load(f)
         except IOError:
             return -1
         try:
@@ -230,6 +238,7 @@ def BakeFaceEncoding(name, imageFile):
     else:
         print(person + "_img contains multiple faces!")
         return 2
+
 
 def SendNamePhoto(name):
     s.listen(999)
@@ -274,8 +283,8 @@ def SendNamePhoto(name):
 
     # receive success ACK
 
-def GrabCards():
 
+def GrabCards():
     """
 def Server():
     jump = False
@@ -483,4 +492,6 @@ def DeleteOP():
 # RecieveNamePhoto()
 # SendNamePhoto("sarvesh")
 """
+
+
 NewServer()
