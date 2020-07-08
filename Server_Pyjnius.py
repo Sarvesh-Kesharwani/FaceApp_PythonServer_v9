@@ -6,11 +6,12 @@ import os
 import os
 import pickle
 from PIL import Image
+import cv2
 
 ##########################################################
 ##########################################################
 # Creating Common Connection Settings for all Connection made in this script.
-IP = "192.168.43.215"
+IP = "192.168.43.205"
 Port = 1998
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -19,8 +20,8 @@ s.bind((IP, Port))
 
 # Resources Used:
 DatabaseFile = "dataset_faces_copy.dat"  # '/home/pi/python_server/dataset_faces.dat'
-imageDir = "TestPhotos/"  # "/home/pi/python_server/Photos/"
-
+imageDir = "Photos/"  # "/home/pi/python_server/Photos/"
+unknown_images = "Unknown_People_test/"
 
 ##########################################################
 ##########################################################
@@ -113,12 +114,14 @@ def NewServer():
 
             # delete person from dataset
             signal, PoppedName = DeletePerson(name)
+            if PoppedName is None:
+                print("bhuchal")
             if signal == 2:
-                clientsocket.sendall(PoppedName + " has been Blocked.\n".encode('utf-8'))
+                clientsocket.sendall((PoppedName + " has been Blocked\n").encode('utf-8'))
                 print(PoppedName + " has been Blocked.")
 
             if signal == 3:
-                clientsocket.sendall("Member is Blocked already.\n".encode('utf-8'))
+                clientsocket.sendall(("Member is Blocked already\n").encode('utf-8'))
                 print("Member is Blocked already.")
 
             clientsocket.close()
@@ -156,17 +159,6 @@ def NewServer():
                 ImageContent = imageFile.read()
                 imageFile.close()
                 imageSize = len(ImageContent)
-                if imageSize > 10000:
-                    #then compress image first
-                    temp_image = Image.open(imageDir + "/" + name + ".png")
-                    temp_image = temp_image.resize((144, 256), Image.ANTIALIAS)
-                    temp_image.save(imageDir + "/" + name + ".png", "PNG")
-                    temp_image.close()
-                    imageFile = open(imageDir + "/" + name + ".png", 'rb')
-                    ImageContent = imageFile.read()
-                    imageSize = len(ImageContent)
-                    imageFile.close()
-
                 imageSize_str = str(imageSize) + "\n"
                 PhotoSizes.append(imageSize_str)
                 Photos.append(ImageContent)
@@ -190,30 +182,56 @@ def NewServer():
                 #print("Photos are:" + str(Photo)+"\n")
             clientsocket.close()
 
+        if OpCode == "?UNKNON":
+            unknown_images = []
+            for filename in os.listdir(unknown_images):
+                img = cv2.imread(os.path.join(unknown_images, filename))
+                if img is not None:
+                    unknown_images.append(img)
+            for photo in unknown_images:
+                clientsocket.sendall(photo)
+"""
+                if imageSize > 10000:
+                    #then compress image first
+                    temp_image = Image.open(imageDir + "/" + name + ".png")
+                    temp_image = temp_image.resize((240, 320), Image.ANTIALIAS)
+                    temp_image.save(imageDir + "/" + name + ".png", "PNG")
+                    temp_image.close()
+                    imageFile = open(imageDir + "/" + name + ".png", 'rb')
+                    ImageContent = imageFile.read()
+                    imageSize = len(ImageContent)
+                    imageFile.close()
+"""
 
 
 def DeletePerson(name):
+    signal = 0
+    DeletedName = ""
     try:
         f = open(DatabaseFile, 'rb')
         all_face_encodings = pickle.load(f)
+        f.close()
         # print(str(all_face_encodings))
 
         try:
             PoppedName = all_face_encodings.pop(name)
-            return 2, PoppedName
+            signal = 2
+            DeletedName = PoppedName
         except KeyError:
-            return 3, None
+            signal = 3
+            DeletedName = None
 
-        f.close()
         try:
             with open(DatabaseFile, 'wb') as f1:
                 pickle.dump(all_face_encodings, f1)
-                f1.close()
         except IOError:
-            return -1, None
+            signal = -1
+            DeletedName = None
     except IOError:
-        return -1, None
+        signal = -1
+        DeletedName = None
 
+    return signal, DeletedName
 
 def BakeFaceEncoding(name, imageFile):
     print("image dir to find face is: " + imageFile)
