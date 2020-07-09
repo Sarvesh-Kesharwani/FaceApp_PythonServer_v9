@@ -2,7 +2,7 @@ import numpy as np
 import pickle
 import socket
 import os
-# import face_recognition
+import face_recognition
 import os
 import pickle
 from PIL import Image
@@ -14,7 +14,7 @@ from glob import glob
 ##########################################################
 # Creating Common Connection Settings for all Connection made in this script.
 
-IP = "192.168.43.215"
+IP = "serveousercontent.com"
 Port = 1998
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -22,9 +22,9 @@ s.bind((IP, Port))
 # print(str(s.gettimeout()))
 
 # Resources Used:
-DatabaseFile = "dataset_faces_copy.dat"  # '/home/pi/python_server/dataset_faces.dat'
-imageDir = "Photos/"  # "/home/pi/python_server/Photos/"
-unknown_images = "Unknown_People_test/"
+DatabaseFile = "/home/pi/python_server/dataset_faces.dat" #"dataset_faces_copy.dat"  # '/home/pi/python_server/dataset_faces.dat'
+imageDir = "/home/pi/python_server/Photos/"  #"Photos/"  # "/home/pi/python_server/Photos/"
+unknown_images = "Unknown_People" # "Unknown_People_test/"
 LentghOfUnknonImagesPath = len(unknown_images)
 
 
