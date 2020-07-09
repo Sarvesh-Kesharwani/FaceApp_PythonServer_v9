@@ -117,7 +117,7 @@ def Face(pirPin):
     
         #play names of detected people
         lang = "hi"
-        sox_effects = ("speed", "1.1")
+        sox_effects = ("speed", "1.0")
         for name in face_names:
             speech = Speech(name, lang)
             speech.play(sox_effects)
