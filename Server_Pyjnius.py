@@ -199,12 +199,16 @@ def NewServer():
                 ImageFileNames.append((str(file).split("\ ")[-1])[NoOfCharInUnknownFolder:])
                 #print(files)
 
-            #sending all ImageFileNames
+            #sending no-of-images
+            NoOfUnknownPhotos = len(ImageFileNames)
+            clientsocket.sendall(str(NoOfUnknownPhotos).encode('utf-8'))
+
+            #sending all ImageFileNames******************
             for onefilename in ImageFileNames:
                 clientsocket.sendall((onefilename+"\n").encode('utf-8'))
 
 
-            #sending image_sizes
+            # Making files & it's sizes ready to send
             for eachFile in ImageFileNames:
                 try:
                     # if person_photo available
@@ -228,13 +232,22 @@ def NewServer():
             # all file sizes and file itself are in RAM now
             #now send these to client
 
-            #sending all photoSizes
+            #sending all photoSizes******************
             for PhotoSize in PhotoSizes:
                 clientsocket.sendall(PhotoSize.encode('utf-8'))
 
-            #sending all photos
+            #sending all photos******************
+            i = 1
             for eachPhotoFile in Photos:
+                print("Waiting for connection "+str(i))
+                clientsocket, address = s.accept()
+                print("Connection "+str(i))
                 clientsocket.sendall(eachPhotoFile)
+                print("Photo sent.")
+                i += 1
+                #print("Photos are:" + str(Photo)+"\n")
+            clientsocket.close()
+
 
 
 def DeletePerson(name):
