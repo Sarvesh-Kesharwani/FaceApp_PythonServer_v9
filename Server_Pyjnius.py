@@ -14,7 +14,7 @@ from glob import glob
 ##########################################################
 # Creating Common Connection Settings for all Connection made in this script.
 
-IP = "serveousercontent.com"
+IP = "localhost"
 Port = 1998
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -95,6 +95,7 @@ def NewServer():
 
             if signal == 1:
                 clientsocket.sendall("Member Added Successfully.\n".encode('utf-8'))
+                os.system('reboot')
             if signal == 0:
                 clientsocket.sendall("No Faces Found, Take Clear Photo of Member's Face\n".encode('utf-8'))
             if signal == 2:
