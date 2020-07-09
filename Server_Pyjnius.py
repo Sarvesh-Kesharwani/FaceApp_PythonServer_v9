@@ -203,37 +203,38 @@ def NewServer():
             for onefilename in ImageFileNames:
                 clientsocket.sendall((onefilename+"\n").encode('utf-8'))
 
+
             #sending image_sizes
             for eachFile in ImageFileNames:
                 try:
                     # if person_photo available
-                    imageFile = open(imageDir + "/" + ImageFileNames[0] + ".jpg", 'rb')
+                    imageFile = open(imageDir + "/" + eachFile + ".*", 'rb')
 
                 except IOError:
                     # if person_photo not available
-                    imageFile = open(imageDir + "/" + "unknown_person" + ".png", 'rb')
+                    imageFile = open(imageDir + "/" + "unknown_person" + ".*", 'rb')
                     print("Image is not available!")
 
                 ImageContent = imageFile.read()
                 imageFile.close()
+
                 imageSize = len(ImageContent)
                 imageSize_str = str(imageSize) + "\n"
+
                 PhotoSizes.append(imageSize_str)
                 Photos.append(ImageContent)
 
             print("Photo Sizes are:" + str(PhotoSizes))
+            # all file sizes and file itself are in RAM now
+            #now send these to client
 
+            #sending all photoSizes
             for PhotoSize in PhotoSizes:
                 clientsocket.sendall(PhotoSize.encode('utf-8'))
 
-            #sending photos
-            unknown_images = []
-            for filename in os.listdir(unknown_images):
-                img = cv2.imread(os.path.join(unknown_images, filename))
-                if img is not None:
-                    unknown_images.append(img)
-            for photo in unknown_images:
-                clientsocket.sendall(photo)
+            #sending all photos
+            for eachPhotoFile in Photos:
+                clientsocket.sendall(eachPhotoFile)
 
 
 def DeletePerson(name):
