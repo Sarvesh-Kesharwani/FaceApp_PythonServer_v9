@@ -9,6 +9,23 @@ from PIL import Image
 import cv2
 from glob import glob
 
+######################
+import RPi.GPIO as GPIO
+import time
+GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
+GPIO.setwarnings(false)
+
+RELAIS_1_GPIO = 17
+RELAIS_2_GPIO = 27
+RELAIS_3_GPIO = 5
+RELAIS_4_GPIO = 6
+
+GPIO.setup(RELAIS_1_GPIO, GPIO.OUT) # GPIO Assign mode
+GPIO.setup(RELAIS_2_GPIO, GPIO.OUT)
+GPIO.setup(RELAIS_3_GPIO, GPIO.OUT)
+GPIO.setup(RELAIS_4_GPIO, GPIO.OUT)
+GPIO.setup(pirPin, GPIO.IN)
+######################
 
 ##########################################################
 ##########################################################
@@ -272,6 +289,65 @@ def NewServer():
             except OSError:
                 clientsocket.sendall("Failed to delete photos!\n".encode('utf-8'))
                 print("Can't Free the server!")
+
+        if OpCode == "?EMEGNC":
+            GateOP = clientsocket.recv(9).decode("utf-8", errors="replace")
+            if(GateOP == "OPEN_GATE"):
+                clientsocket.sendall("".encode('utf-8'))
+                OpenGate()
+                clientsocket.sendall("".encode('utf-8'))
+            if (GateOP == "CLOSEGATE"):
+                clientsocket.sendall("".encode('utf-8'))
+                OpenGate()
+                clientsocket.sendall("".encode('utf-8'))
+            if (GateOP == "TIMEDOPEN"):
+                clientsocket.sendall("".encode('utf-8'))
+                OpenGateForLimitedTime()
+                clientsocket.sendall("".encode('utf-8'))
+
+def extendActuator():
+    print("Extneding")
+    GPIO.output(RELAIS_1_GPIO, GPIO.HIGH)
+    GPIO.output(RELAIS_2_GPIO, GPIO.LOW)
+    GPIO.output(RELAIS_3_GPIO, GPIO.HIGH)
+    GPIO.output(RELAIS_4_GPIO, GPIO.LOW)
+
+def retractActuator():
+    print("Retracting")
+    GPIO.output(RELAIS_1_GPIO, GPIO.LOW)
+    GPIO.output(RELAIS_2_GPIO, GPIO.HIGH)
+    GPIO.output(RELAIS_3_GPIO, GPIO.LOW)
+    GPIO.output(RELAIS_4_GPIO, GPIO.HIGH)
+
+def stopActuator():
+    print("Stop")
+    GPIO.output(RELAIS_1_GPIO, GPIO.LOW)
+    GPIO.output(RELAIS_2_GPIO, GPIO.LOW)
+    GPIO.output(RELAIS_3_GPIO, GPIO.LOW)
+    GPIO.output(RELAIS_4_GPIO, GPIO.LOW)
+
+def OpenGate():
+    retractActuator()
+    time.sleep(32)
+    stopActuator()
+
+def CloseGate():
+    extendActuator()
+    time.sleep(32)
+    stopActuator()
+
+def OpenGateForLimitedTime():
+    retractActuator()
+    time.sleep(15)
+
+    stopActuator()
+    time.sleep(2)
+
+    extendActuator()
+    time.sleep(15)
+
+    stopActuator()
+    time.sleep(2)
 
 def DeletePerson(name):
     signal = 0
