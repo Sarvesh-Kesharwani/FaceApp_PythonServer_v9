@@ -7,10 +7,13 @@ import os
 import pickle
 from PIL import Image
 import cv2
+from glob import glob
+
 
 ##########################################################
 ##########################################################
 # Creating Common Connection Settings for all Connection made in this script.
+
 IP = "192.168.43.205"
 Port = 1998
 
@@ -22,6 +25,8 @@ s.bind((IP, Port))
 DatabaseFile = "dataset_faces_copy.dat"  # '/home/pi/python_server/dataset_faces.dat'
 imageDir = "Photos/"  # "/home/pi/python_server/Photos/"
 unknown_images = "Unknown_People_test/"
+LentghOfUnknonImagesPath = len(unknown_images)
+
 
 ##########################################################
 ##########################################################
@@ -183,6 +188,45 @@ def NewServer():
             clientsocket.close()
 
         if OpCode == "?UNKNON":
+            ImageFileNames = []
+            PhotoSizes = []
+            Photos = []
+
+            #getting files's names inside unknown_dir
+            NoOfCharInUnknownFolder = LentghOfUnknonImagesPath
+            path = unknown_images
+            for file in glob(path + "*"):
+                ImageFileNames.append((str(file).split("\ ")[-1])[NoOfCharInUnknownFolder:])
+                #print(files)
+
+            #sending all ImageFileNames
+            for onefilename in ImageFileNames:
+                clientsocket.sendall((onefilename+"\n").encode('utf-8'))
+
+            #sending image_sizes
+            for eachFile in ImageFileNames:
+                try:
+                    # if person_photo available
+                    imageFile = open(imageDir + "/" + ImageFileNames[0] + ".jpg", 'rb')
+
+                except IOError:
+                    # if person_photo not available
+                    imageFile = open(imageDir + "/" + "unknown_person" + ".png", 'rb')
+                    print("Image is not available!")
+
+                ImageContent = imageFile.read()
+                imageFile.close()
+                imageSize = len(ImageContent)
+                imageSize_str = str(imageSize) + "\n"
+                PhotoSizes.append(imageSize_str)
+                Photos.append(ImageContent)
+
+            print("Photo Sizes are:" + str(PhotoSizes))
+
+            for PhotoSize in PhotoSizes:
+                clientsocket.sendall(PhotoSize.encode('utf-8'))
+
+            #sending photos
             unknown_images = []
             for filename in os.listdir(unknown_images):
                 img = cv2.imread(os.path.join(unknown_images, filename))
@@ -190,18 +234,6 @@ def NewServer():
                     unknown_images.append(img)
             for photo in unknown_images:
                 clientsocket.sendall(photo)
-"""
-                if imageSize > 10000:
-                    #then compress image first
-                    temp_image = Image.open(imageDir + "/" + name + ".png")
-                    temp_image = temp_image.resize((240, 320), Image.ANTIALIAS)
-                    temp_image.save(imageDir + "/" + name + ".png", "PNG")
-                    temp_image.close()
-                    imageFile = open(imageDir + "/" + name + ".png", 'rb')
-                    ImageContent = imageFile.read()
-                    imageSize = len(ImageContent)
-                    imageFile.close()
-"""
 
 
 def DeletePerson(name):
@@ -521,6 +553,18 @@ def DeleteOP():
 # RecieveNamePhoto()
 # SendNamePhoto("sarvesh")
 """
+    """
+                    if imageSize > 10000:
+                        #then compress image first
+                        temp_image = Image.open(imageDir + "/" + name + ".png")
+                        temp_image = temp_image.resize((240, 320), Image.ANTIALIAS)
+                        temp_image.save(imageDir + "/" + name + ".png", "PNG")
+                        temp_image.close()
+                        imageFile = open(imageDir + "/" + name + ".png", 'rb')
+                        ImageContent = imageFile.read()
+                        imageSize = len(ImageContent)
+                        imageFile.close()
+    """
 
 
 NewServer()
