@@ -14,7 +14,7 @@ from glob import glob
 ##########################################################
 # Creating Common Connection Settings for all Connection made in this script.
 
-IP = "192.168.43.205"
+IP = "192.168.43.215"
 Port = 1998
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -251,7 +251,26 @@ def NewServer():
                 #print("Photos are:" + str(Photo)+"\n")
             clientsocket.close()
 
+        if OpCode == "?FREESV":
+            # deleting all photos in unknown_images directory.
+            try:
+                # counting no of files in unknown_images directory.
+                path, dirs, files = next(os.walk(unknown_images))
+                NoOfFilesBeingDeleted = len(files)
 
+                # deleting all files in unknown_images directory.
+                print("No of files are: "+ str(NoOfFilesBeingDeleted))
+                filelist = [f for f in os.listdir(unknown_images)]
+                for f in filelist:
+                    os.remove(os.path.join(unknown_images, f))
+
+                # sending no of files deleted and ACK message.
+                clientsocket.sendall((str(NoOfFilesBeingDeleted) + " Files Were Deleted Successfully\n").encode('utf-8'))
+                print("FreeSv ACK sent successfully.")
+
+            except OSError:
+                clientsocket.sendall("Failed to delete photos!\n".encode('utf-8'))
+                print("Can't Free the server!")
 
 def DeletePerson(name):
     signal = 0
