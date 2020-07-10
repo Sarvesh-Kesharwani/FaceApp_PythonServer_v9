@@ -2,7 +2,7 @@ import numpy as np
 import pickle
 import socket
 import os
-import face_recognition
+##import face_recognition
 import os
 import pickle
 from PIL import Image
@@ -10,28 +10,31 @@ import cv2
 from glob import glob
 
 ######################
+'''
 import RPi.GPIO as GPIO
 import time
 GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
 GPIO.setwarnings(false)
-
+'''
 RELAIS_1_GPIO = 17
 RELAIS_2_GPIO = 27
 RELAIS_3_GPIO = 5
 RELAIS_4_GPIO = 6
 
+'''
 GPIO.setup(RELAIS_1_GPIO, GPIO.OUT) # GPIO Assign mode
 GPIO.setup(RELAIS_2_GPIO, GPIO.OUT)
 GPIO.setup(RELAIS_3_GPIO, GPIO.OUT)
 GPIO.setup(RELAIS_4_GPIO, GPIO.OUT)
 GPIO.setup(pirPin, GPIO.IN)
+'''
 ######################
 
 ##########################################################
 ##########################################################
 # Creating Common Connection Settings for all Connection made in this script.
 
-IP = "localhost"
+IP = "192.168.43.205" #localhost
 Port = 1998
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -293,17 +296,20 @@ def NewServer():
         if OpCode == "?EMEGNC":
             GateOP = clientsocket.recv(9).decode("utf-8", errors="replace")
             if(GateOP == "OPEN_GATE"):
-                clientsocket.sendall("".encode('utf-8'))
+                clienbhawanitsocket.sendall("Opening Gate\n".encode('utf-8'))
+                print("Opening Gate...")
                 OpenGate()
-                clientsocket.sendall("".encode('utf-8'))
+                clientsocket.sendall("Gate is Open\n".encode('utf-8'))
             if (GateOP == "CLOSEGATE"):
-                clientsocket.sendall("".encode('utf-8'))
+                clientsocket.sendall("Closing Gate\n".encode('utf-8'))
+                print("Closing Gate...")
                 OpenGate()
-                clientsocket.sendall("".encode('utf-8'))
+                clientsocket.sendall("Gate is close\n".encode('utf-8'))
             if (GateOP == "TIMEDOPEN"):
-                clientsocket.sendall("".encode('utf-8'))
+                clientsocket.sendall("OpeningGate for small duration\n".encode('utf-8'))
+                print("TimedOpening Gate...")
                 OpenGateForLimitedTime()
-                clientsocket.sendall("".encode('utf-8'))
+                clientsocket.sendall("Gate has been closed\n".encode('utf-8'))
 
 def extendActuator():
     print("Extneding")
