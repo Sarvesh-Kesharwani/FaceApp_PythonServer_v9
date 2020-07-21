@@ -11,10 +11,12 @@ from glob import glob
 
 ######################
 
+"""
 import RPi.GPIO as GPIO
 import time
-GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
-GPIO.setwarnings(false)
+#GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
+
+GPIO.setwarnings(False)
 
 RELAIS_1_GPIO = 17
 RELAIS_2_GPIO = 27
@@ -26,7 +28,7 @@ GPIO.setup(RELAIS_1_GPIO, GPIO.OUT) # GPIO Assign mode
 GPIO.setup(RELAIS_2_GPIO, GPIO.OUT)
 GPIO.setup(RELAIS_3_GPIO, GPIO.OUT)
 GPIO.setup(RELAIS_4_GPIO, GPIO.OUT)
-GPIO.setup(pirPin, GPIO.IN)
+"""
 
 ######################
 
@@ -34,7 +36,7 @@ GPIO.setup(pirPin, GPIO.IN)
 ##########################################################
 # Creating Common Connection Settings for all Connection made in this script.
 
-IP = "serveousercontent.com" #localhost
+IP = "192.168.43.64" #localhost
 Port = 1998
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
