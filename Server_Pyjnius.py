@@ -2,7 +2,7 @@ import numpy as np
 import pickle
 import socket
 import os
-##import face_recognition
+import face_recognition
 import os
 import pickle
 from PIL import Image
@@ -10,31 +10,30 @@ import cv2
 from glob import glob
 
 ######################
-'''
+
 import RPi.GPIO as GPIO
 import time
 GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
-GPIO.setwarnings(false)
-'''
+GPIO.setwarnings(False)
+
 RELAIS_1_GPIO = 17
 RELAIS_2_GPIO = 27
 RELAIS_3_GPIO = 5
 RELAIS_4_GPIO = 6
 
-'''
 GPIO.setup(RELAIS_1_GPIO, GPIO.OUT) # GPIO Assign mode
 GPIO.setup(RELAIS_2_GPIO, GPIO.OUT)
 GPIO.setup(RELAIS_3_GPIO, GPIO.OUT)
 GPIO.setup(RELAIS_4_GPIO, GPIO.OUT)
-GPIO.setup(pirPin, GPIO.IN)
-'''
+
+
 ######################
 
 ##########################################################
 ##########################################################
 # Creating Common Connection Settings for all Connection made in this script.
 
-IP = "192.168.43.205" #localhost
+IP = "localhost" #localhost
 Port = 1998
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -44,7 +43,7 @@ s.bind((IP, Port))
 # Resources Used:
 DatabaseFile = "/home/pi/python_server/dataset_faces.dat" #"dataset_faces_copy.dat"  # '/home/pi/python_server/dataset_faces.dat'
 imageDir = "/home/pi/python_server/Photos/"  #"Photos/"  # "/home/pi/python_server/Photos/"
-unknown_images = "Unknown_People" # "Unknown_People_test/"
+unknown_images = "Unknown_People/" # "Unknown_People_test/"
 LentghOfUnknonImagesPath = len(unknown_images)
 
 
@@ -143,8 +142,8 @@ def NewServer():
             if PoppedName is None:
                 print("bhuchal")
             if signal == 2:
-                clientsocket.sendall((PoppedName + " has been Blocked\n").encode('utf-8'))
-                print(PoppedName + " has been Blocked.")
+                clientsocket.sendall((str(PoppedName) + " has been Blocked\n").encode('utf-8'))
+                print(str(PoppedName) + " has been Blocked.")
 
             if signal == 3:
                 clientsocket.sendall(("Member is Blocked already\n").encode('utf-8'))

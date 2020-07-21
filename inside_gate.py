@@ -2,7 +2,8 @@
 import RPi.GPIO as GPIO
 import time
 GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
-GPIO.setwarnings(false)
+
+GPIO.setwarnings(False)
 
 RELAIS_1_GPIO = 17
 RELAIS_2_GPIO = 27

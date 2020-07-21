@@ -1,0 +1,14 @@
+./Server_Pyjnius.py: line 1: import: command not found
+./Server_Pyjnius.py: line 2: import: command not found
+./Server_Pyjnius.py: line 3: import: command not found
+./Server_Pyjnius.py: line 4: import: command not found
+./Server_Pyjnius.py: line 5: import: command not found
+./Server_Pyjnius.py: line 6: import: command not found
+./Server_Pyjnius.py: line 7: import: command not found
+from: can't read /var/mail/PIL
+./Server_Pyjnius.py: line 9: import: command not found
+from: can't read /var/mail/glob
+./Server_Pyjnius.py: line 14: import: command not found
+./Server_Pyjnius.py: line 15: import: command not found
+./Server_Pyjnius.py: line 16: syntax error near unexpected token `GPIO.BCM'
+./Server_Pyjnius.py: line 16: `GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers'
