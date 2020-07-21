@@ -11,9 +11,17 @@ from glob import glob
 
 ######################
 
+<<<<<<< HEAD
 import RPi.GPIO as GPIO
 import time
 GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
+=======
+
+import RPi.GPIO as GPIO
+import time
+#GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
+
+>>>>>>> efdfab9b760579c9fa5730674176fd7fe7fcfa16
 GPIO.setwarnings(False)
 
 RELAIS_1_GPIO = 17
@@ -21,6 +29,10 @@ RELAIS_2_GPIO = 27
 RELAIS_3_GPIO = 5
 RELAIS_4_GPIO = 6
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> efdfab9b760579c9fa5730674176fd7fe7fcfa16
 GPIO.setup(RELAIS_1_GPIO, GPIO.OUT) # GPIO Assign mode
 GPIO.setup(RELAIS_2_GPIO, GPIO.OUT)
 GPIO.setup(RELAIS_3_GPIO, GPIO.OUT)
@@ -33,7 +45,11 @@ GPIO.setup(RELAIS_4_GPIO, GPIO.OUT)
 ##########################################################
 # Creating Common Connection Settings for all Connection made in this script.
 
+<<<<<<< HEAD
 IP = "localhost" #localhost
+=======
+IP = "192.168.43.64" #localhost
+>>>>>>> efdfab9b760579c9fa5730674176fd7fe7fcfa16
 Port = 1998
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -295,7 +311,7 @@ def NewServer():
         if OpCode == "?EMEGNC":
             GateOP = clientsocket.recv(9).decode("utf-8", errors="replace")
             if(GateOP == "OPEN_GATE"):
-                clienbhawanitsocket.sendall("Opening Gate\n".encode('utf-8'))
+                clientsocket.sendall("Opening Gate\n".encode('utf-8'))
                 print("Opening Gate...")
                 OpenGate()
                 clientsocket.sendall("Gate is Open\n".encode('utf-8'))
