@@ -2,7 +2,7 @@ import numpy as np
 import pickle
 import socket
 import os
-import face_recognition
+##import face_recognition
 import os
 import pickle
 from PIL import Image
@@ -11,17 +11,11 @@ from glob import glob
 
 ######################
 
-<<<<<<< HEAD
-import RPi.GPIO as GPIO
-import time
-GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
-=======
-
+"""
 import RPi.GPIO as GPIO
 import time
 #GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
 
->>>>>>> efdfab9b760579c9fa5730674176fd7fe7fcfa16
 GPIO.setwarnings(False)
 
 RELAIS_1_GPIO = 17
@@ -29,15 +23,12 @@ RELAIS_2_GPIO = 27
 RELAIS_3_GPIO = 5
 RELAIS_4_GPIO = 6
 
-<<<<<<< HEAD
-=======
 
->>>>>>> efdfab9b760579c9fa5730674176fd7fe7fcfa16
 GPIO.setup(RELAIS_1_GPIO, GPIO.OUT) # GPIO Assign mode
 GPIO.setup(RELAIS_2_GPIO, GPIO.OUT)
 GPIO.setup(RELAIS_3_GPIO, GPIO.OUT)
 GPIO.setup(RELAIS_4_GPIO, GPIO.OUT)
-
+"""
 
 ######################
 
@@ -45,11 +36,7 @@ GPIO.setup(RELAIS_4_GPIO, GPIO.OUT)
 ##########################################################
 # Creating Common Connection Settings for all Connection made in this script.
 
-<<<<<<< HEAD
-IP = "localhost" #localhost
-=======
 IP = "192.168.43.64" #localhost
->>>>>>> efdfab9b760579c9fa5730674176fd7fe7fcfa16
 Port = 1998
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -57,11 +44,11 @@ s.bind((IP, Port))
 # print(str(s.gettimeout()))
 
 # Resources Used:
-DatabaseFile = "/home/pi/python_server/dataset_faces.dat" #"dataset_faces_copy.dat"  # '/home/pi/python_server/dataset_faces.dat'
-imageDir = "/home/pi/python_server/Photos/"  #"Photos/"  # "/home/pi/python_server/Photos/"
-unknown_images = "Unknown_People/" # "Unknown_People_test/"
+DatabaseFile = "dataset_faces.dat" #"dataset_faces_copy.dat"  # '/home/pi/python_server/dataset_faces.dat'          /home/pi/python_server/dataset_faces.dat
+imageDir = "Photos/"  #"Photos/"  # "/home/pi/python_server/Photos/"            /home/pi/python_server/Photos/
+unknown_images = "Unknown_People/" # "Unknown_People_test/"          /home/pi/python_server/Unknown_People/
 LentghOfUnknonImagesPath = len(unknown_images)
-
+VehicleDatabase = "VehicleDatabase.txt"
 
 ##########################################################
 ##########################################################
@@ -158,8 +145,8 @@ def NewServer():
             if PoppedName is None:
                 print("bhuchal")
             if signal == 2:
-                clientsocket.sendall((str(PoppedName) + " has been Blocked\n").encode('utf-8'))
-                print(str(PoppedName) + " has been Blocked.")
+                clientsocket.sendall((PoppedName + " has been Blocked\n").encode('utf-8'))
+                print(PoppedName + " has been Blocked.")
 
             if signal == 3:
                 clientsocket.sendall(("Member is Blocked already\n").encode('utf-8'))
@@ -325,6 +312,35 @@ def NewServer():
                 print("TimedOpening Gate...")
                 OpenGateForLimitedTime()
                 clientsocket.sendall("Gate has been closed\n".encode('utf-8'))
+
+        if Opcode == "?VCLDEL":
+            file = open(VehicleDatabase, "a")
+            file.write("\n"+)
+            file.close()
+
+        if Opcode == "?VCLUPD":
+            #receive vehicle_number
+            vehicle_number_length = clientsocket.recv(2).decode()
+            vehicle_number = str(clientsocket.recv(int(vehicle_number_length)).decode())
+
+            #check if it exits already or not
+            file = open(VehicleDatabase, "r")
+            VehNumbers = file.readlines()
+            file.close()
+
+            numberFound = False
+            for OneNumber in VehNumbers:
+                if OneNumber == vehicle_number:
+                    numberFound = True
+
+            if numberFound:
+                clientsocket.sendall("Member is Already Added!\n".encode("utf-8"))
+                numberFound = False
+            else:
+                file = open(VehicleDatabase, "a")
+                file.write("\n" + vehicle_number)
+                file.close()
+
 
 def extendActuator():
     print("Extneding")
