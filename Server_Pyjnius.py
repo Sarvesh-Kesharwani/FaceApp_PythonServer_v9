@@ -325,7 +325,8 @@ def NewServer():
             # check if VehicleDatabase exist
             if not os.path.exists(VehicleDatabase):
                 print("Dir not found creating dir...")
-                os.mkdir(VehicleDatabase)
+                with open(VehicleDatabase, "w+") as f:
+                    f.close()
 
             file = open(VehicleDatabase, "r")
             VehNumbers = file.readlines()
@@ -345,7 +346,8 @@ def NewServer():
             # check if VehicleDatabase exist
             if not os.path.exists(VehicleNameDatabase):
                 print("Dir not found creating dir...")
-                os.mkdir(VehicleNameDatabase)
+                with open(VehicleNameDatabase, "w+") as f:
+                    f.close()
 
             if numberDeleted:
                 file = open(VehicleNameDatabase, "r")
@@ -388,7 +390,8 @@ def NewServer():
             # check if VehicleDatabase exist
             if not os.path.exists(VehicleDatabase):
                 print("Dir not found creating dir...")
-                os.mkdir(VehicleDatabase)
+                with open(VehicleDatabase, "w+") as f:
+                    f.close()
 
             # check if it exits already or not
             file = open(VehicleDatabase, "r")
@@ -412,7 +415,8 @@ def NewServer():
                 # check if VehicleDatabase exist
                 if not os.path.exists(VehicleNameDatabase):
                     print("Dir not found creating dir...")
-                    os.mkdir(VehicleNameDatabase)
+                    with open(VehicleNameDatabase, "w+") as f:
+                        f.close()
 
                 file1 = open(VehicleNameDatabase, "a")
                 file1.write("\n" + vehicle_name)
@@ -425,7 +429,8 @@ def NewServer():
             # check if VehicleDatabase exist
             if not os.path.exists(VehicleDatabase):
                 print("Dir not found creating dir...")
-                os.mkdir(VehicleDatabase)
+                with open(VehicleDatabase, "w+") as f:
+                    f.close()
 
             file = open(VehicleDatabase, "r")
             VehNumbers = file.readlines()
@@ -441,7 +446,8 @@ def NewServer():
             # check if VehicleDatabase exist
             if not os.path.exists(VehicleNameDatabase):
                 print("Dir not found creating dir...")
-                os.mkdir(VehicleNameDatabase)
+                with open(VehicleNameDatabase, "w+") as f:
+                    f.close()
 
             file = open(VehicleNameDatabase, "r")
             VehNames = file.readlines()
