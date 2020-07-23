@@ -36,7 +36,7 @@ GPIO.setup(RELAIS_4_GPIO, GPIO.OUT)
 ##########################################################
 # Creating Common Connection Settings for all Connection made in this script.
 
-IP = "192.168.43.64" #localhost
+IP = "192.168.43.64"  # localhost
 Port = 1998
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -44,12 +44,14 @@ s.bind((IP, Port))
 # print(str(s.gettimeout()))
 
 # Resources Used:
-DatabaseFile = "dataset_faces.dat" #"dataset_faces_copy.dat"  # '/home/pi/python_server/dataset_faces.dat'          /home/pi/python_server/dataset_faces.dat
-imageDir = "Photos/"  #"Photos/"  # "/home/pi/python_server/Photos/"            /home/pi/python_server/Photos/
-unknown_images = "Unknown_People/" # "Unknown_People_test/"          /home/pi/python_server/Unknown_People/
+DatabaseFile = "dataset_faces.dat"  # "dataset_faces_copy.dat"  # '/home/pi/python_server/dataset_faces.dat'          /home/pi/python_server/dataset_faces.dat
+imageDir = "Photos/"  # "Photos/"  # "/home/pi/python_server/Photos/"            /home/pi/python_server/Photos/
+unknown_images = "Unknown_People/"  # "Unknown_People_test/"          /home/pi/python_server/Unknown_People/
 LentghOfUnknonImagesPath = len(unknown_images)
 VehicleDatabase = "VehicleDatabase.txt"
 VehicleNameDatabase = "VehicleNameDatabase.txt"
+
+
 ##########################################################
 ##########################################################
 
@@ -201,13 +203,13 @@ def NewServer():
 
             i = 1
             for Photo in Photos:
-                print("Waiting for connection "+str(i))
+                print("Waiting for connection " + str(i))
                 clientsocket, address = s.accept()
-                print("Connection "+str(i))
+                print("Connection " + str(i))
                 clientsocket.sendall(Photo)
                 print("Photo sent.")
                 i += 1
-                #print("Photos are:" + str(Photo)+"\n")
+                # print("Photos are:" + str(Photo)+"\n")
             clientsocket.close()
 
         if OpCode == "?UNKNON":
@@ -215,23 +217,23 @@ def NewServer():
             PhotoSizes = []
             Photos = []
 
-            #getting files's names inside unknown_dir
+            # getting files's names inside unknown_dir
             NoOfCharInUnknownFolder = LentghOfUnknonImagesPath
             path = unknown_images
             for file in glob(path + "*"):
                 ImageFileNames.append((str(file).split("\ ")[-1])[NoOfCharInUnknownFolder:])
-                #print(files)
+                # print(files)
 
-            #sending no-of-images************************
+            # sending no-of-images************************
             NoOfUnknownPhotos = len(ImageFileNames)
-            print("length of imagefileNames is: "+ str(NoOfUnknownPhotos))
-            clientsocket.sendall((str(NoOfUnknownPhotos)+"\n").encode('utf-8'))
-            print("No of Unknon Images are: "+str(NoOfUnknownPhotos))
+            print("length of imagefileNames is: " + str(NoOfUnknownPhotos))
+            clientsocket.sendall((str(NoOfUnknownPhotos) + "\n").encode('utf-8'))
+            print("No of Unknon Images are: " + str(NoOfUnknownPhotos))
 
-            #sending all ImageFileNames******************
+            # sending all ImageFileNames******************
             for onefilename in ImageFileNames:
-                clientsocket.sendall((onefilename+"\n").encode('utf-8'))
-            print("Files are: "+str(ImageFileNames))
+                clientsocket.sendall((onefilename + "\n").encode('utf-8'))
+            print("Files are: " + str(ImageFileNames))
 
             # Making files & it's sizes ready to send
             for eachFile in ImageFileNames:
@@ -254,24 +256,24 @@ def NewServer():
                 Photos.append(ImageContent)
 
             print("Photo Sizes are:" + str(PhotoSizes))
-            print("Photos are: "+str(Photos))
+            print("Photos are: " + str(Photos))
             # all file sizes and file itself are in RAM now
-            #now send these to client
+            # now send these to client
 
-            #sending all photoSizes******************
+            # sending all photoSizes******************
             for PhotoSize in PhotoSizes:
                 clientsocket.sendall(PhotoSize.encode('utf-8'))
 
-            #sending all photos******************
+            # sending all photos******************
             i = 1
             for eachPhotoFile in Photos:
-                print("Waiting for connection "+str(i))
+                print("Waiting for connection " + str(i))
                 clientsocket, address = s.accept()
-                print("Connection "+str(i))
+                print("Connection " + str(i))
                 clientsocket.sendall(eachPhotoFile)
                 print("Photo sent.")
                 i += 1
-                #print("Photos are:" + str(Photo)+"\n")
+                # print("Photos are:" + str(Photo)+"\n")
             clientsocket.close()
 
         if OpCode == "?FREESV":
@@ -282,13 +284,14 @@ def NewServer():
                 NoOfFilesBeingDeleted = len(files)
 
                 # deleting all files in unknown_images directory.
-                print("No of files are: "+ str(NoOfFilesBeingDeleted))
+                print("No of files are: " + str(NoOfFilesBeingDeleted))
                 filelist = [f for f in os.listdir(unknown_images)]
                 for f in filelist:
                     os.remove(os.path.join(unknown_images, f))
 
                 # sending no of files deleted and ACK message.
-                clientsocket.sendall((str(NoOfFilesBeingDeleted) + " Files Were Deleted Successfully\n").encode('utf-8'))
+                clientsocket.sendall(
+                    (str(NoOfFilesBeingDeleted) + " Files Were Deleted Successfully\n").encode('utf-8'))
                 print("FreeSv ACK sent successfully.")
 
             except OSError:
@@ -297,7 +300,7 @@ def NewServer():
 
         if OpCode == "?EMEGNC":
             GateOP = clientsocket.recv(9).decode("utf-8", errors="replace")
-            if(GateOP == "OPEN_GATE"):
+            if (GateOP == "OPEN_GATE"):
                 clientsocket.sendall("Opening Gate\n".encode('utf-8'))
                 print("Opening Gate...")
                 OpenGate()
@@ -321,6 +324,11 @@ def NewServer():
             vehicle_name_length = clientsocket.recv(2).decode()
             vehicle_name = str(clientsocket.recv(int(vehicle_name_length)).decode())
 
+            # check if VehicleDatabase exist
+            if not os.path.exists(VehicleDatabase):
+                print("Dir not found creating dir...")
+                os.mkdir(VehicleDatabase)
+
             file = open(VehicleDatabase, "r")
             VehNumbers = file.readlines()
             file.close()
@@ -331,11 +339,15 @@ def NewServer():
                 OneNumber = VehNumbers[i]
                 if OneNumber == vehicle_number:
                     DeletedVehicleNumber = VehNumbers.pop(i)
-                    print("Vehicle Number: "+str(DeletedVehicleNumber)+" has been deleted successfully.")
+                    print("Vehicle Number: " + str(DeletedVehicleNumber) + " has been deleted successfully.")
                     numberDeleted = True
                     break
                 i += 1
 
+            # check if VehicleDatabase exist
+            if not os.path.exists(VehicleNameDatabase):
+                print("Dir not found creating dir...")
+                os.mkdir(VehicleNameDatabase)
 
             if numberDeleted:
                 file = open(VehicleNameDatabase, "r")
@@ -361,20 +373,26 @@ def NewServer():
                 file.writelines(VehNames)
                 file.close()
 
-
+                clientsocket.sendall("?SYNC_DONE".encode("utf-8"))
                 clientsocket.sendall("Vehicle Has Been Blocked Successfully".encode("utf-8"))
             else:
+                clientsocket.sendall("?SYNC_DONE".encode("utf-8"))
                 clientsocket.sendall("Vehicle Was Never Registered".encode("utf-8"))
 
         if OpCode == "?VCLUPD":
-            #receive vehicle_number
+            # receive vehicle_number
             vehicle_number_length = clientsocket.recv(2).decode()
             vehicle_number = str(clientsocket.recv(int(vehicle_number_length)).decode())
 
             vehicle_name_length = clientsocket.recv(2).decode()
             vehicle_name = str(clientsocket.recv(int(vehicle_name_length)).decode())
 
-            #check if it exits already or not
+            # check if VehicleDatabase exist
+            if not os.path.exists(VehicleDatabase):
+                print("Dir not found creating dir...")
+                os.mkdir(VehicleDatabase)
+
+            # check if it exits already or not
             file = open(VehicleDatabase, "r")
             VehNumbers = file.readlines()
             file.close()
@@ -386,18 +404,56 @@ def NewServer():
                     break
 
             if numberFound:
+                clientsocket.sendall("?SYNC_DONE".encode("utf-8"))
                 clientsocket.sendall("Member is Already Added!\n".encode("utf-8"))
             else:
                 file = open(VehicleDatabase, "a")
                 file.write("\n" + vehicle_number)
                 file.close()
 
+                # check if VehicleDatabase exist
+                if not os.path.exists(VehicleNameDatabase):
+                    print("Dir not found creating dir...")
+                    os.mkdir(VehicleNameDatabase)
+
                 file1 = open(VehicleNameDatabase, "a")
                 file1.write("\n" + vehicle_name)
                 file1.close()
+                clientsocket.sendall("?SYNC_DONE".encode("utf-8"))
+                clientsocket.sendall("Member has been added successfully!\n".encode("utf-8"))
 
         if OpCode == "?RECVDB":
 
+            # check if VehicleDatabase exist
+            if not os.path.exists(VehicleDatabase):
+                print("Dir not found creating dir...")
+                os.mkdir(VehicleDatabase)
+
+            file = open(VehicleDatabase, "r")
+            VehNumbers = file.readlines()
+            file.close()
+
+            NoOfVehicles = len(VehNumbers) + "\n"
+            clientsocket.sendall(NoOfVehicles.encode("utf-8"))
+
+            for eachNumber in VehNumbers:
+                readyNumber = eachNumber + "\n"
+                clientsocket.sendall(readyNumber.encode("utf-8"))
+
+            # check if VehicleDatabase exist
+            if not os.path.exists(VehicleNameDatabase):
+                print("Dir not found creating dir...")
+                os.mkdir(VehicleNameDatabase)
+
+            file = open(VehicleNameDatabase, "r")
+            VehNames = file.readlines()
+            file.close()
+
+            for eachName in VehNames:
+                readyName = eachName + "\n"
+                clientsocket.sendall(readyName.encode("utf-8"))
+
+            clientsocket.send("VehicleDatabase Received Successfully".encode("utf-8"))
 
 
 def extendActuator():
@@ -407,12 +463,14 @@ def extendActuator():
     GPIO.output(RELAIS_3_GPIO, GPIO.HIGH)
     GPIO.output(RELAIS_4_GPIO, GPIO.LOW)
 
+
 def retractActuator():
     print("Retracting")
     GPIO.output(RELAIS_1_GPIO, GPIO.LOW)
     GPIO.output(RELAIS_2_GPIO, GPIO.HIGH)
     GPIO.output(RELAIS_3_GPIO, GPIO.LOW)
     GPIO.output(RELAIS_4_GPIO, GPIO.HIGH)
+
 
 def stopActuator():
     print("Stop")
@@ -421,15 +479,18 @@ def stopActuator():
     GPIO.output(RELAIS_3_GPIO, GPIO.LOW)
     GPIO.output(RELAIS_4_GPIO, GPIO.LOW)
 
+
 def OpenGate():
     retractActuator()
     time.sleep(32)
     stopActuator()
 
+
 def CloseGate():
     extendActuator()
     time.sleep(32)
     stopActuator()
+
 
 def OpenGateForLimitedTime():
     retractActuator()
@@ -443,6 +504,7 @@ def OpenGateForLimitedTime():
 
     stopActuator()
     time.sleep(2)
+
 
 def DeletePerson(name):
     signal = 0
@@ -472,6 +534,7 @@ def DeletePerson(name):
         DeletedName = None
 
     return signal, DeletedName
+
 
 def BakeFaceEncoding(name, imageFile):
     print("image dir to find face is: " + imageFile)
