@@ -49,7 +49,7 @@ imageDir = "Photos/"  #"Photos/"  # "/home/pi/python_server/Photos/"            
 unknown_images = "Unknown_People/" # "Unknown_People_test/"          /home/pi/python_server/Unknown_People/
 LentghOfUnknonImagesPath = len(unknown_images)
 VehicleDatabase = "VehicleDatabase.txt"
-
+VehicleNameDatabase = "VehicleNameDatabase.txt"
 ##########################################################
 ##########################################################
 
@@ -313,15 +313,66 @@ def NewServer():
                 OpenGateForLimitedTime()
                 clientsocket.sendall("Gate has been closed\n".encode('utf-8'))
 
-        if Opcode == "?VCLDEL":
-            file = open(VehicleDatabase, "a")
-            file.write("\n"+)
+        if OpCode == "?VCLDEL":
+            # receive vehicle_number
+            vehicle_number_length = clientsocket.recv(2).decode()
+            vehicle_number = str(clientsocket.recv(int(vehicle_number_length)).decode())
+
+            vehicle_name_length = clientsocket.recv(2).decode()
+            vehicle_name = str(clientsocket.recv(int(vehicle_name_length)).decode())
+
+            file = open(VehicleDatabase, "r")
+            VehNumbers = file.readlines()
             file.close()
 
-        if Opcode == "?VCLUPD":
+            numberDeleted = False
+            i = 0
+            while i <= len(VehNumbers):
+                OneNumber = VehNumbers[i]
+                if OneNumber == vehicle_number:
+                    DeletedVehicleNumber = VehNumbers.pop(i)
+                    print("Vehicle Number: "+str(DeletedVehicleNumber)+" has been deleted successfully.")
+                    numberDeleted = True
+                    break
+                i += 1
+
+
+            if numberDeleted:
+                file = open(VehicleNameDatabase, "r")
+                VehNames = file.readlines()
+                file.close()
+
+                nameDeleted = False
+                i = 0
+                while i <= len(VehNames):
+                    OneName = VehNames[i]
+                    if OneName == vehicle_name:
+                        DeletedVehicleName = VehNames.pop(i)
+                        print("Vehicle Name: " + str(DeletedVehicleName) + " has been deleted successfully.")
+                        nameDeleted = True
+                        break
+                    i += 1
+
+                file = open(VehicleDatabase, "w")
+                file.writelines(VehNumbers)
+                file.close()
+
+                file = open(VehicleNameDatabase, "w")
+                file.writelines(VehNames)
+                file.close()
+
+
+                clientsocket.sendall("Vehicle Has Been Blocked Successfully".encode("utf-8"))
+            else:
+                clientsocket.sendall("Vehicle Was Never Registered".encode("utf-8"))
+
+        if OpCode == "?VCLUPD":
             #receive vehicle_number
             vehicle_number_length = clientsocket.recv(2).decode()
             vehicle_number = str(clientsocket.recv(int(vehicle_number_length)).decode())
+
+            vehicle_name_length = clientsocket.recv(2).decode()
+            vehicle_name = str(clientsocket.recv(int(vehicle_name_length)).decode())
 
             #check if it exits already or not
             file = open(VehicleDatabase, "r")
@@ -332,14 +383,21 @@ def NewServer():
             for OneNumber in VehNumbers:
                 if OneNumber == vehicle_number:
                     numberFound = True
+                    break
 
             if numberFound:
                 clientsocket.sendall("Member is Already Added!\n".encode("utf-8"))
-                numberFound = False
             else:
                 file = open(VehicleDatabase, "a")
                 file.write("\n" + vehicle_number)
                 file.close()
+
+                file1 = open(VehicleNameDatabase, "a")
+                file1.write("\n" + vehicle_name)
+                file1.close()
+
+        if OpCode == "?RECVDB":
+
 
 
 def extendActuator():
