@@ -64,44 +64,44 @@ def LPR():
     if detected == 1:
         cv2.drawContours(img, [screenCnt], -1, (0, 255, 0), 3)
 
-    # Masking the part other than the number plate
-    mask = np.zeros(gray.shape, np.uint8)
-    new_image = cv2.drawContours(mask, [screenCnt], 0, 255, -1, )
-    new_image = cv2.bitwise_and(img, img, mask=mask)
+        # Masking the part other than the number plate
+        mask = np.zeros(gray.shape, np.uint8)
+        new_image = cv2.drawContours(mask, [screenCnt], 0, 255, -1, )
+        new_image = cv2.bitwise_and(img, img, mask=mask)
 
-    # Now crop
-    (x, y) = np.where(mask == 255)
-    (topx, topy) = (np.min(x), np.min(y))
-    (bottomx, bottomy) = (np.max(x), np.max(y))
-    Cropped = gray[topx:bottomx + 1, topy:bottomy + 1]
+        # Now crop
+        (x, y) = np.where(mask == 255)
+        (topx, topy) = (np.min(x), np.min(y))
+        (bottomx, bottomy) = (np.max(x), np.max(y))
+        Cropped = gray[topx:bottomx + 1, topy:bottomy + 1]
 
-    # Read the number plate
-    text = pytesseract.image_to_string(Cropped, config='--psm 11')
-    print("Detected Number is:", text)
-    string = text
-    whitelist = set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
-    filtered_text = ''.join(filter(whitelist.__contains__, text))
-    print(filtered_text)
+        # Read the number plate
+        text = pytesseract.image_to_string(Cropped, config='--psm 11')
+        print("Detected Number is:", text)
+        string = text
+        whitelist = set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
+        filtered_text = ''.join(filter(whitelist.__contains__, text))
+        print(filtered_text)
 
-    cv2.imshow('image', img)
-    cv2.imshow('Cropped', Cropped)
+        cv2.imshow('image', img)
+        cv2.imshow('Cropped', Cropped)
 
-    if check_if_string_in_file('sample.txt', filtered_text):
-        print('Registered')
-    else:
-        print('Not Registered')
+        if check_if_string_in_file('sample.txt', filtered_text):
+            print('Registered')
+        else:
+            print('Not Registered')
 
-    # print(''.join(open('sample.txt').read().split(",")))
+        # print(''.join(open('sample.txt').read().split(",")))
 
-    with open('sample.txt', 'r') as read_obj:
-        # Read all lines in the file one by one
-        for line in read_obj:
-            if (difflib.SequenceMatcher(None, filtered_text, line).ratio()) > .75:
-                print("Registered")
-                print(difflib.SequenceMatcher(None, filtered_text, line).ratio())
-                break
-            else:
-                print("Not Registered")
+        with open('sample.txt', 'r') as read_obj:
+            # Read all lines in the file one by one
+            for line in read_obj:
+                if (difflib.SequenceMatcher(None, filtered_text, line).ratio()) > .75:
+                    print("Registered")
+                    print(difflib.SequenceMatcher(None, filtered_text, line).ratio())
+                    break
+                else:
+                    print("Not Registered")
 
     # cv2.waitKey(0)
     cv2.destroyAllWindows()
