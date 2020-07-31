@@ -10,7 +10,7 @@ import cv2
 from glob import glob
 
 ######################
-"""
+
 import RPi.GPIO as GPIO
 import time
 GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
@@ -27,27 +27,27 @@ GPIO.setup(RELAIS_1_GPIO, GPIO.OUT) # GPIO Assign mode
 GPIO.setup(RELAIS_2_GPIO, GPIO.OUT)
 GPIO.setup(RELAIS_3_GPIO, GPIO.OUT)
 GPIO.setup(RELAIS_4_GPIO, GPIO.OUT)
-"""
+
 ######################
 
 ##########################################################
 ##########################################################
 # Creating Common Connection Settings for all Connection made in this script.
 
-IP = "192.168.43.64"  # localhost
-Port = 9839
+IP = "localhost"  # localhost
+Port = 1998
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((IP, Port))
 # print(str(s.gettimeout()))
 
 # Resources Used:
-DatabaseFile = "dataset_faces.dat"  # "dataset_faces_copy.dat"  # '/home/pi/python_server/dataset_faces.dat'          /home/pi/python_server/dataset_faces.dat
-imageDir = "Photos/"  # "Photos/"  # "/home/pi/python_server/Photos/"            /home/pi/python_server/Photos/
-unknown_images = "Unknown_People/"  # "Unknown_People_test/"          /home/pi/python_server/Unknown_People/
+DatabaseFile = "/home/pi/python_server/dataset_faces.dat"  # "dataset_faces_copy.dat"  # '/home/pi/python_server/dataset_faces.dat'          /home/pi/python_server/dataset_faces.dat
+imageDir = "/home/pi/python_server/Photos/"  # "Photos/"  # "/home/pi/python_server/Photos/"            /home/pi/python_server/Photos/
+unknown_images = "/home/pi/python_server/Unknown_People/"  # "Unknown_People_test/"          /home/pi/python_server/Unknown_People/
 LentghOfUnknonImagesPath = len(unknown_images)
-VehicleDatabase = "OD_LPR/sample.txt"  #/home/pi/python_server/
-VehicleNameDatabase = "OD_LPR/VehicleNameDatabase.txt"  #/home/pi/python_server/
+VehicleDatabase = "/home/pi/python_server/OD_LPR/sample.txt"  #/home/pi/python_server/
+VehicleNameDatabase = "/home/pi/python_server/OD_LPR/VehicleNameDatabase.txt"  #/home/pi/python_server/
 
 
 ##########################################################
