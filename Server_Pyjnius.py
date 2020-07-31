@@ -46,8 +46,8 @@ DatabaseFile = "/home/pi/python_server/dataset_faces.dat"  # "dataset_faces_copy
 imageDir = "/home/pi/python_server/Photos/"  # "Photos/"  # "/home/pi/python_server/Photos/"            /home/pi/python_server/Photos/
 unknown_images = "/home/pi/python_server/Unknown_People/"  # "Unknown_People_test/"          /home/pi/python_server/Unknown_People/
 LentghOfUnknonImagesPath = len(unknown_images)
-VehicleDatabase = "/home/pi/python_server/VehicleDatabase.txt"
-VehicleNameDatabase = "/home/pi/python_server/VehicleNameDatabase.txt"
+VehicleDatabase = "/home/pi/python_server/OD_LPR/sample.txt"
+VehicleNameDatabase = "/home/pi/python_server/OD_LPR/VehicleNameDatabase.txt"
 
 
 ##########################################################
@@ -439,8 +439,12 @@ def NewServer():
             NoOfVehicles = str(len(VehNumbers)) + "\n"
             clientsocket.sendall(NoOfVehicles.encode("utf-8"))
 
+            p = 0
             for eachNumber in VehNumbers:
+                eachNumber = eachNumber[0:len(eachNumber)-2]
                 readyNumber = eachNumber + "\n"
+                print("length is :"+str(len(VehNumbers)))
+                print("readyNumber is: " + str(readyNumber))
                 clientsocket.sendall(readyNumber.encode("utf-8"))
 
             # check if VehicleDatabase exist
@@ -454,7 +458,10 @@ def NewServer():
             file.close()
 
             for eachName in VehNames:
+                if(eachName[len(eachName)-2:len(eachName)] == "\n"):
+                    readyName = eachName
                 readyName = eachName + "\n"
+                print("readyName is :" + str(readyName))
                 clientsocket.sendall(readyName.encode("utf-8"))
 
             clientsocket.send("VehicleDatabase Received Successfully".encode("utf-8"))
@@ -732,7 +739,7 @@ def RecieveNamePhoto():
     temp = str(clientsocket.recv(5).decode())
     print("Temp is: "+temp)
     if (temp != "?NAME") and (str(temp[4]) != "1"):
-        	return None, None
+            return None, None
     else:
       print("switching back to reciving name & photo option.")
 

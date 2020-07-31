@@ -8,8 +8,8 @@ import cv2
 import imutils
 import numpy as np
 import pytesseract
-from imutils.video import FPS
-from imutils.video import VideoStream
+#from imutils.video import FPS
+#from imutils.video import VideoStream
 import face_recognition
 import picamera
 import pickle
@@ -169,7 +169,7 @@ def LPR():
         return False
 
 
-    img = cv2.imread('LP.jpg', cv2.IMREAD_COLOR)
+    img = cv2.imread('LP5.jpg', cv2.IMREAD_COLOR)
 
     img = cv2.resize(img, (620, 480))
 
@@ -224,8 +224,8 @@ def LPR():
         filtered_text = ''.join(filter(whitelist.__contains__, text))
         print(filtered_text)
 
-        cv2.imshow('image', img)
-        cv2.imshow('Cropped', Cropped)
+        # cv2.imshow('image', img)
+        # cv2.imshow('Cropped', Cropped)
 
         if check_if_string_in_file('sample.txt', filtered_text):
             print('Registered')
@@ -240,6 +240,10 @@ def LPR():
                 if (difflib.SequenceMatcher(None, filtered_text, line).ratio()) > .75:
                     print("Registered")
                     print(difflib.SequenceMatcher(None, filtered_text, line).ratio())
+                    retractActuator(3)
+                    stopActuator()
+                    extendActuator(3)
+                    stopActuator()
                     break
                 else:
                     print("Not Registered")
@@ -264,21 +268,22 @@ def OD(pirPin):
 
     # load our serialized model from disk
     print("[INFO] loading model...")
-    net = cv2.dnn.readNetFromCaffe('MobileNetSSD_deploy.prototxt.txt', 'MobileNetSSD_deploy.caffemodel')
+    net = cv2.dnn.readNetFromCaffe('/home/pi/python_server/OD_LPR/MobileNetSSD_deploy.prototxt.txt', '/home/pi/python_server/OD_LPR/MobileNetSSD_deploy.caffemodel')
 
     # initialize the video stream, allow the cammera sensor to warmup,
     # and initialize the FPS counter
     print("[INFO] starting video stream...")
-    vs = VideoStream(src=0).start()
+    # vs = VideoStream(src=0).start()
     # vs = VideoStream(usePiCamera=True).start()
+    vs = cv2.VideoCapture(0)
     time.sleep(2.0)
-    fps = FPS().start()
+    #fps = FPS().start()
 
     # loop over the frames from the video stream
     while True:
         # grab the frame from the threaded video stream and resize it
         # to have a maximum width of 400 pixels
-        frame = vs.read()
+        _, frame = vs.read()        
         frame = imutils.resize(frame, width=400)
 
         # grab the frame dimensions and convert it to a blob
@@ -317,37 +322,36 @@ def OD(pirPin):
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLORS[idx], 2)
                 if CLASSES[idx] == "person":
                     print("Person is Detected")
-                    vs.stop()
+                    vs.release()
                     Face()
                 elif CLASSES[idx] == "car":
                     print("Car is detected")
                     i = 0
                     t_end = time.time() + .4
                     while time.time() < t_end:
-                        frame = vs.read()
                         cv2.imwrite('LP' + str(i) + '.jpg', frame)
-                        i += 1
+                        i+= 1
                     LPR()
 
         # show the output frame
-        cv2.imshow("Frame", frame)
-        key = cv2.waitKey(1) & 0xFF
+        #cv2.imshow("Frame", frame)
+        #key = cv2.waitKey(1) & 0xFF
 
         # if the `q` key was pressed, break from the loop
-        if key == ord("q"):
-            break
+        #if key == ord("q"):
+            #break
 
         # update the FPS counter
-        fps.update()
+        #fps.update()
 
     # stop the timer and display FPS information
-    fps.stop()
-    print("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
-    print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
+    #fps.stop()
+    #print("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
+    #print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 
     # do a bit of cleanup
-    cv2.destroyAllWindows()
-    vs.stop()
+        cv2.destroyAllWindows()
+        vs.release()
     
 print("Motion Sensor Alarm (CTRL+C to exit)")
 time.sleep(.2)
@@ -360,4 +364,5 @@ try:
         time.sleep(1)
 except KeyboardInterrupt:
     print("Quit")
+    cv2.destroyAllWindows()
     GPIO.cleanup()
